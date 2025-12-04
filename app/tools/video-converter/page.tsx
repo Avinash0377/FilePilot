@@ -8,6 +8,7 @@ import MultiFileDownloadButton from '@/components/MultiFileDownloadButton';
 import ProgressIndicator, { ProgressStatus } from '@/components/ProgressIndicator';
 import StepIndicator from '@/components/StepIndicator';
 import SimilarTools from '@/components/SimilarTools';
+import QueueIndicator from '@/components/QueueIndicator';
 
 interface ConversionResult {
   blob: Blob;
@@ -20,6 +21,8 @@ export default function VideoConverterPage() {
   const [status, setStatus] = useState<ProgressStatus>('idle');
   const [message, setMessage] = useState('');
   const [results, setResults] = useState<ConversionResult[]>([]);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [showQueue, setShowQueue] = useState(false);
 
   const handleFilesSelected = useCallback((selectedFiles: File[]) => {
     setFiles(selectedFiles);
@@ -43,13 +46,14 @@ export default function VideoConverterPage() {
     setStatus('uploading');
     setMessage(`Processing ${files.length} file${files.length > 1 ? 's' : ''}...`);
     setResults([]);
+    setJobId(null);
+    setShowQueue(false);
 
     try {
       const convertedResults: ConversionResult[] = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        setStatus('converting');
         setMessage(`Converting ${i + 1} of ${files.length}: ${file.name} (this may take a while)`);
 
         const formData = new FormData();
@@ -61,21 +65,54 @@ export default function VideoConverterPage() {
           body: formData,
         });
 
-        if (!response.ok) {
+        // Check if job was queued
+        if (response.status === 202) {
+          const queueData = await response.json();
+          setJobId(queueData.jobId);
+          setShowQueue(true);
+          setStatus('converting');
+
+          // Wait and retry with jobId
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Retry with jobId
+          const retryFormData = new FormData();
+          retryFormData.append('file', file);
+          retryFormData.append('outputFormat', outputFormat);
+          retryFormData.append('jobId', queueData.jobId);
+
+          const retryResponse = await fetch('/api/video-converter', {
+            method: 'POST',
+            body: retryFormData,
+          });
+
+          if (!retryResponse.ok) {
+            const error = await retryResponse.json();
+            throw new Error(`Failed to convert ${file.name}: ${error.error || 'Conversion failed'}`);
+          }
+
+          const blob = await retryResponse.blob();
+          const filename = file.name.replace(/\.(mp4|webm|avi|mov)$/i, `.${outputFormat}`);
+          convertedResults.push({ blob, filename });
+        } else if (response.ok) {
+          const blob = await response.blob();
+          const filename = file.name.replace(/\.(mp4|webm|avi|mov)$/i, `.${outputFormat}`);
+          convertedResults.push({ blob, filename });
+        } else {
           const error = await response.json();
           throw new Error(`Failed to convert ${file.name}: ${error.error || 'Conversion failed'}`);
         }
-
-        const blob = await response.blob();
-        const filename = file.name.replace(/\.(mp4|webm)$/i, `.${outputFormat}`);
-        convertedResults.push({ blob, filename });
       }
 
       setResults(convertedResults);
       setStatus('done');
+      setShowQueue(false);
+      setJobId(null);
       setMessage(`Successfully converted ${convertedResults.length} file${convertedResults.length > 1 ? 's' : ''}!`);
     } catch (error) {
       setStatus('error');
+      setShowQueue(false);
+      setJobId(null);
       setMessage(error instanceof Error ? error.message : 'An error occurred');
     }
   };
@@ -139,7 +176,18 @@ export default function VideoConverterPage() {
           </ConvertButton>
         )}
 
-        {status !== 'idle' && (
+        {showQueue && jobId && (
+          <QueueIndicator
+            jobId={jobId}
+            onStatusChange={(newStatus) => {
+              if (newStatus === 'processing') {
+                setStatus('converting');
+              }
+            }}
+          />
+        )}
+
+        {status !== 'idle' && !showQueue && (
           <ProgressIndicator status={status} message={message} />
         )}
 
