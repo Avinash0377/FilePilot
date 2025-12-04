@@ -144,7 +144,15 @@ export default function ToolsGrid() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {categoryTools.map((tool, index) => (
                     <div key={tool.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
-                      <ToolCard tool={tool} />
+                      <ToolCard
+                        name={tool.name}
+                        description={tool.description}
+                        icon={tool.icon}
+                        href={tool.href}
+                        category={tool.category}
+                        supportedFormats={tool.supportedFormats}
+                        maxFileSize={tool.maxFileSize}
+                      />
                     </div>
                   ))}
                 </div>
