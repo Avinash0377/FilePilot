@@ -48,12 +48,6 @@ export default function Footer() {
                   Privacy Policy
                 </Link>
               </li>
-              <li>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-400 transition-colors flex items-center gap-2">
-                  <Icons.GitHub className="w-4 h-4" />
-                  GitHub
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -89,11 +83,6 @@ export default function Footer() {
             <span className="text-sm text-slate-400">
               © {new Date().getFullYear()} FilePilot. All rights reserved.
             </span>
-            <div className="flex items-center gap-4">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors">
-                <Icons.GitHub className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Owner Signature */}

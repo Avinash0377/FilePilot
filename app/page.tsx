@@ -177,8 +177,8 @@ export default function HomePage() {
             {[
               {
                 icon: Icons.Shield,
-                title: 'Bank-grade Security',
-                description: 'Your files are processed securely and automatically deleted after conversion. We never store your data.',
+                title: 'Secure SSL Encryption',
+                description: 'All file transfers encrypted with HTTPS. Files auto-deleted after processing.',
               },
               {
                 icon: Icons.Bolt,
