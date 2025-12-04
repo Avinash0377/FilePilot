@@ -111,48 +111,28 @@ export default function ProgressIndicator({
   return (
     <div className={`w-full p-6 rounded-2xl ${config.bgColor} shadow-soft-md transition-all duration-300 animate-fade-in`}>
       {/* Header with Icon and Message */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.iconBg} transition-all duration-300`}>
-            <StatusIcon />
-          </div>
-          <div>
-            <span className={`text-base font-semibold ${config.textColor} block`}>
-              {message || config.defaultMessage}
-            </span>
-            {fileSize && (
-              <span className="text-sm text-slate-500 mt-0.5 block">
-                {fileSize}
-                {timeRemaining && (
-                  <div className="flex items-center gap-1.5">
-                    <Icons.Clock className="w-4 h-4" />
-                    <span>{timeRemaining} remaining</span>
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* Success State - Enhanced */}
-            {status === 'done' && (
-              <div className="mt-4 pt-4 border-t border-emerald-200">
-                <div className="flex items-center gap-2 text-emerald-700">
-                  <Icons.Check className="w-5 h-5" />
-                  <span className="text-sm font-medium">Your file is ready to download!</span>
-                </div>
-              </div>
-            )}
-
-            {/* Error State - Enhanced with Retry */}
-            {status === 'error' && onRetry && (
-              <div className="mt-4 pt-4 border-t border-red-200">
-                <button
-                  onClick={onRetry}
-                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all duration-200 hover:shadow-glow"
-                >
-                  Try Again
-                </button>
-              </div>
-            )}
+      {/* Success State - Enhanced */}
+      {status === 'done' && (
+        <div className="mt-4 pt-4 border-t border-emerald-200">
+          <div className="flex items-center gap-2 text-emerald-700">
+            <Icons.Check className="w-5 h-5" />
+            <span className="text-sm font-medium">Your file is ready to download!</span>
           </div>
-          );
+        </div>
+      )}
+
+      {/* Error State - Enhanced with Retry */}
+      {status === 'error' && onRetry && (
+        <div className="mt-4 pt-4 border-t border-red-200">
+          <button
+            onClick={onRetry}
+            className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all duration-200 hover:shadow-glow"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
