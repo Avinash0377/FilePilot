@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Icons } from '@/components/Icons';
 
 interface ToolCardProps {
   name: string;
   description: string;
-  icon: string;
+  icon: keyof typeof Icons;
   href: string;
   category: string;
   supportedFormats?: string[];
@@ -17,7 +18,7 @@ interface ToolCardProps {
 export default function ToolCard({
   name,
   description,
-  icon,
+  icon: iconName,
   href,
   category,
   supportedFormats,
@@ -89,7 +90,7 @@ export default function ToolCard({
 
       {/* Icon */}
       <div className="w-14 h-14 sm:w-16 sm:h-16 mb-4 sm:mb-6 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 group-hover:scale-110">
-        <span className="text-3xl sm:text-4xl">{icon}</span>
+        {Icons[iconName] && React.createElement(Icons[iconName], { className: "w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" })}
       </div>
 
       {/* Content */}
