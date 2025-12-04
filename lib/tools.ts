@@ -1,0 +1,253 @@
+export interface Tool {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  href: string;
+  category: 'pdf' | 'image' | 'text' | 'archive' | 'audio' | 'video';
+  supportedFormats: string[];
+  maxFileSize: string;
+}
+
+export const tools: Tool[] = [
+  // PDF Tools
+  {
+    id: 'pdf-to-word',
+    title: 'PDF to Word',
+    description: 'Convert PDF documents to editable Word files',
+    icon: '📄',
+    href: '/tools/pdf-to-word',
+    category: 'pdf',
+    supportedFormats: ['PDF', 'DOCX'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'word-to-pdf',
+    title: 'Word to PDF',
+    description: 'Convert Word documents to PDF format',
+    icon: '📝',
+    href: '/tools/word-to-pdf',
+    category: 'pdf',
+    supportedFormats: ['DOCX', 'DOC', 'PDF'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'merge-pdf',
+    title: 'Merge PDF',
+    description: 'Combine multiple PDF files into one',
+    icon: '📚',
+    href: '/tools/merge-pdf',
+    category: 'pdf',
+    supportedFormats: ['PDF'],
+    maxFileSize: '100MB',
+  },
+  {
+    id: 'split-pdf',
+    title: 'Split PDF',
+    description: 'Extract pages from a PDF file',
+    icon: '✂️',
+    href: '/tools/split-pdf',
+    category: 'pdf',
+    supportedFormats: ['PDF'],
+    maxFileSize: '100MB',
+  },
+  {
+    id: 'compress-pdf',
+    title: 'Compress PDF',
+    description: 'Reduce PDF file size',
+    icon: '🗜️',
+    href: '/tools/compress-pdf',
+    category: 'pdf',
+    supportedFormats: ['PDF'],
+    maxFileSize: '100MB',
+  },
+  {
+    id: 'images-to-pdf',
+    title: 'Images to PDF',
+    description: 'Convert JPG/PNG images to PDF',
+    icon: '🖼️',
+    href: '/tools/images-to-pdf',
+    category: 'pdf',
+    supportedFormats: ['JPG', 'PNG', 'PDF'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'pdf-to-png',
+    title: 'PDF to PNG',
+    description: 'Convert PDF pages to PNG images',
+    icon: '🎨',
+    href: '/tools/pdf-to-png',
+    category: 'pdf',
+    supportedFormats: ['PDF', 'PNG'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'ppt-to-pdf',
+    title: 'PowerPoint to PDF',
+    description: 'Convert PowerPoint presentations to PDF',
+    icon: '📊',
+    href: '/tools/ppt-to-pdf',
+    category: 'pdf',
+    supportedFormats: ['PPT', 'PPTX', 'PDF'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'pdf-to-ppt',
+    title: 'PDF to PowerPoint',
+    description: 'Convert PDF files to PowerPoint presentations',
+    icon: '📽️',
+    href: '/tools/pdf-to-ppt',
+    category: 'pdf',
+    supportedFormats: ['PDF', 'PPTX'],
+    maxFileSize: '50MB',
+  },
+
+  // Image Tools
+  {
+    id: 'jpg-to-png',
+    title: 'JPG to PNG',
+    description: 'Convert JPG images to PNG format',
+    icon: '🌅',
+    href: '/tools/jpg-to-png',
+    category: 'image',
+    supportedFormats: ['JPG', 'PNG'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'png-to-jpg',
+    title: 'PNG to JPG',
+    description: 'Convert PNG images to JPG format',
+    icon: '🌄',
+    href: '/tools/png-to-jpg',
+    category: 'image',
+    supportedFormats: ['PNG', 'JPG'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'image-compressor',
+    title: 'Image Compressor',
+    description: 'Compress JPG, PNG, or WebP images',
+    icon: '📦',
+    href: '/tools/image-compressor',
+    category: 'image',
+    supportedFormats: ['JPG', 'PNG', 'WEBP'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'image-to-webp',
+    title: 'Image to WebP',
+    description: 'Convert JPG/PNG to WebP format',
+    icon: '🌐',
+    href: '/tools/image-to-webp',
+    category: 'image',
+    supportedFormats: ['JPG', 'PNG', 'WEBP'],
+    maxFileSize: '50MB',
+  },
+  {
+    id: 'background-remover',
+    title: 'Background Remover',
+    description: 'Remove background from images automatically',
+    icon: '✂️',
+    href: '/tools/background-remover',
+    category: 'image',
+    supportedFormats: ['JPG', 'PNG', 'WEBP'],
+    maxFileSize: '10MB',
+  },
+  {
+    id: 'add-background',
+    title: 'Add Background Color',
+    description: 'Add solid background color to transparent images',
+    icon: '🎨',
+    href: '/tools/add-background',
+    category: 'image',
+    supportedFormats: ['PNG', 'JPG'],
+    maxFileSize: '50MB',
+  },
+
+  // Text/Doc Tools
+  {
+    id: 'ocr-image',
+    title: 'OCR Image to Text',
+    description: 'Extract text from images using OCR',
+    icon: '👁️',
+    href: '/tools/ocr-image',
+    category: 'text',
+    supportedFormats: ['JPG', 'PNG', 'TXT'],
+    maxFileSize: '10MB',
+  },
+  {
+    id: 'pdf-to-text',
+    title: 'PDF to Text',
+    description: 'Extract text content from PDF files',
+    icon: '📃',
+    href: '/tools/pdf-to-text',
+    category: 'text',
+    supportedFormats: ['PDF', 'TXT'],
+    maxFileSize: '50MB',
+  },
+
+  // Archive Tools
+  {
+    id: 'zip-files',
+    title: 'ZIP Files',
+    description: 'Compress multiple files into a ZIP archive',
+    icon: '📁',
+    href: '/tools/zip-files',
+    category: 'archive',
+    supportedFormats: ['Any', 'ZIP'],
+    maxFileSize: '100MB',
+  },
+  {
+    id: 'unzip-files',
+    title: 'Unzip Files',
+    description: 'Extract files from a ZIP archive',
+    icon: '📂',
+    href: '/tools/unzip-files',
+    category: 'archive',
+    supportedFormats: ['ZIP', 'Files'],
+    maxFileSize: '100MB',
+  },
+
+  // Audio Tools
+  {
+    id: 'audio-converter',
+    title: 'Audio Converter',
+    description: 'Convert between MP3 and WAV formats',
+    icon: '🎵',
+    href: '/tools/audio-converter',
+    category: 'audio',
+    supportedFormats: ['MP3', 'WAV'],
+    maxFileSize: '50MB',
+  },
+
+  // Video Tools
+  {
+    id: 'video-converter',
+    title: 'Video Converter',
+    description: 'Convert between MP4 and WebM formats',
+    icon: '🎬',
+    href: '/tools/video-converter',
+    category: 'video',
+    supportedFormats: ['MP4', 'WEBM'],
+    maxFileSize: '100MB',
+  },
+  {
+    id: 'video-compressor',
+    title: 'Video Compressor',
+    description: 'Reduce video file size',
+    icon: '📹',
+    href: '/tools/video-compressor',
+    category: 'video',
+    supportedFormats: ['MP4', 'WEBM'],
+    maxFileSize: '100MB',
+  },
+];
+
+export const categories = [
+  { id: 'pdf', name: 'PDF Tools', icon: '📄' },
+  { id: 'image', name: 'Image Tools', icon: '🖼️' },
+  { id: 'text', name: 'Text/Doc Tools', icon: '📝' },
+  { id: 'archive', name: 'Archive Tools', icon: '📁' },
+  { id: 'audio', name: 'Audio Tools', icon: '🎵' },
+  { id: 'video', name: 'Video Tools', icon: '🎬' },
+];

@@ -1,0 +1,27 @@
+# Ignore development files
+.next/
+node_modules/
+.env*.local
+
+# Ignore build artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore test files
+coverage/
+.nyc_output/
+
+# Ignore Docker files (Railway uses Dockerfile only)
+docker-compose.yml
