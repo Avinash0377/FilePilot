@@ -8,6 +8,7 @@ import MultiFileDownloadButton from '@/components/MultiFileDownloadButton';
 import ProgressIndicator, { ProgressStatus } from '@/components/ProgressIndicator';
 import StepIndicator from '@/components/StepIndicator';
 import SimilarTools from '@/components/SimilarTools';
+import QueueIndicator from '@/components/QueueIndicator';
 
 interface ConversionResult {
   blob: Blob;
@@ -20,6 +21,8 @@ export default function VideoCompressorPage() {
   const [status, setStatus] = useState<ProgressStatus>('idle');
   const [message, setMessage] = useState('');
   const [results, setResults] = useState<ConversionResult[]>([]);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [showQueue, setShowQueue] = useState(false);
 
   const handleFilesSelected = useCallback((selectedFiles: File[]) => {
     setFiles(selectedFiles);
@@ -30,12 +33,14 @@ export default function VideoCompressorPage() {
     }
   }, []);
 
-  const handleConvert = async () => {
+  const handleCompress = async () => {
     if (files.length === 0) return;
 
     setStatus('uploading');
     setMessage(`Processing ${files.length} file${files.length > 1 ? 's' : ''}...`);
     setResults([]);
+    setJobId(null);
+    setShowQueue(false);
 
     try {
       const compressedResults: ConversionResult[] = [];
@@ -45,7 +50,6 @@ export default function VideoCompressorPage() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         totalOriginalSize += file.size;
-        setStatus('converting');
         setMessage(`Compressing ${i + 1} of ${files.length}: ${file.name} (this may take a while)`);
 
         const formData = new FormData();
@@ -57,23 +61,57 @@ export default function VideoCompressorPage() {
           body: formData,
         });
 
-        if (!response.ok) {
+        // Check if job was queued
+        if (response.status === 202) {
+          const queueData = await response.json();
+          setJobId(queueData.jobId);
+          setShowQueue(true);
+          setStatus('converting');
+
+          // Wait and retry with jobId
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Retry with jobId
+          const retryFormData = new FormData();
+          retryFormData.append('file', file);
+          retryFormData.append('crf', crf.toString());
+          retryFormData.append('jobId', queueData.jobId);
+
+          const retryResponse = await fetch('/api/video-compressor', {
+            method: 'POST',
+            body: retryFormData,
+          });
+
+          if (!retryResponse.ok) {
+            const error = await retryResponse.json();
+            throw new Error(`Failed to compress ${file.name}: ${error.error || 'Compression failed'}`);
+          }
+
+          const blob = await retryResponse.blob();
+          totalCompressedSize += blob.size;
+          const filename = file.name.replace(/\.(mp4|webm|avi|mov)$/i, '-compressed.mp4');
+          compressedResults.push({ blob, filename });
+        } else if (response.ok) {
+          const blob = await response.blob();
+          totalCompressedSize += blob.size;
+          const filename = file.name.replace(/\.(mp4|webm|avi|mov)$/i, '-compressed.mp4');
+          compressedResults.push({ blob, filename });
+        } else {
           const error = await response.json();
           throw new Error(`Failed to compress ${file.name}: ${error.error || 'Compression failed'}`);
         }
-
-        const blob = await response.blob();
-        totalCompressedSize += blob.size;
-        const filename = file.name.replace(/\.mp4$/i, '-compressed.mp4');
-        compressedResults.push({ blob, filename });
       }
 
       setResults(compressedResults);
       setStatus('done');
+      setShowQueue(false);
+      setJobId(null);
       const savedPercent = ((1 - totalCompressedSize / totalOriginalSize) * 100).toFixed(0);
       setMessage(`Compressed ${compressedResults.length} file${compressedResults.length > 1 ? 's' : ''}! Saved ${savedPercent}% (${(totalOriginalSize / 1024 / 1024).toFixed(1)}MB → ${(totalCompressedSize / 1024 / 1024).toFixed(1)}MB)`);
     } catch (error) {
       setStatus('error');
+      setShowQueue(false);
+      setJobId(null);
       setMessage(error instanceof Error ? error.message : 'An error occurred');
     }
   };
@@ -117,7 +155,7 @@ export default function VideoCompressorPage() {
 
         {files.length > 0 && (
           <ConvertButton
-            onClick={handleConvert}
+            onClick={handleCompress}
             loading={status === 'uploading' || status === 'converting'}
             disabled={files.length === 0}
           >
@@ -125,7 +163,18 @@ export default function VideoCompressorPage() {
           </ConvertButton>
         )}
 
-        {status !== 'idle' && (
+        {showQueue && jobId && (
+          <QueueIndicator
+            jobId={jobId}
+            onStatusChange={(newStatus) => {
+              if (newStatus === 'processing') {
+                setStatus('converting');
+              }
+            }}
+          />
+        )}
+
+        {status !== 'idle' && !showQueue && (
           <ProgressIndicator status={status} message={message} />
         )}
 
