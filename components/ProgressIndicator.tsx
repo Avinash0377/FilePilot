@@ -8,14 +8,13 @@ export type ProgressStatus = 'idle' | 'uploading' | 'converting' | 'done' | 'err
 interface ProgressIndicatorProps {
   status: ProgressStatus;
   message?: string;
-  progress?: number; // 0-100
-  fileSize?: string; // e.g., "2.5 MB"
-  speed?: string; // e.g., "1.2 MB/s"
-  timeRemaining?: string; // e.g., "2s"
-  onRetry?: () => void; // For error state
+  progress?: number;
+  fileSize?: string;
+  speed?: string;
+  timeRemaining?: string;
+  onRetry?: () => void;
 }
 
-// Status icons as React components
 const StatusIcons = {
   idle: () => <Icons.Clock className="w-5 h-5" />,
   uploading: () => <Icons.Upload className="w-5 h-5 animate-bounce-subtle" />,
@@ -33,29 +32,24 @@ export default function ProgressIndicator({
   timeRemaining,
   onRetry
 }: ProgressIndicatorProps) {
-  // Animated progress for converting status
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
   useEffect(() => {
     if (status === 'converting' && !progress) {
-      // Smooth animation from 0 to 95% over time
       const interval = setInterval(() => {
         setAnimatedProgress(prev => {
-          if (prev >= 95) return 95; // Cap at 95% until done
+          if (prev >= 95) return 95;
           return prev + 1;
         });
-      }, 100); // Update every 100ms
-
+      }, 100);
       return () => clearInterval(interval);
     } else if (status === 'uploading' && !progress) {
-      // Quick animation for uploading
       const interval = setInterval(() => {
         setAnimatedProgress(prev => {
           if (prev >= 30) return 30;
           return prev + 2;
         });
       }, 50);
-
       return () => clearInterval(interval);
     } else if (status === 'idle') {
       setAnimatedProgress(0);
@@ -104,21 +98,75 @@ export default function ProgressIndicator({
 
   const config = statusConfig[status];
   const StatusIcon = StatusIcons[status];
-
-  // Use provided progress or animated progress
   const actualProgress = progress || animatedProgress;
 
   return (
-    <div className={`w-full p-6 rounded-2xl ${config.bgColor} shadow-soft-md transition-all duration-300 animate-fade-in`}>
-      {/* Header with Icon and Message */}
-      <div className="mt-4 pt-4 border-t border-red-200">
-        <button
-          onClick={onRetry}
-          className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-all duration-200 hover:shadow-glow"
-        >
-          Try Again
-        </button>
+    <div className={`w-full p-4 sm:p-6 rounded-xl sm:rounded-2xl ${config.bgColor} shadow-soft-md transition-all duration-300 animate-fade-in`}>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center ${config.iconBg} transition-all duration-300 flex-shrink-0`}>
+            <StatusIcon />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className={`text-sm sm:text-base font-semibold ${config.textColor} block truncate`}>
+              {message || config.defaultMessage}
+            </span>
+            {fileSize && (
+              <span className="text-xs sm:text-sm text-slate-500 mt-0.5 block">
+                {fileSize}
+              </span>
+            )}
+          </div>
+        </div>
+        {(status === 'uploading' || status === 'converting') && (
+          <div className={`text-lg sm:text-2xl font-bold ${config.textColor} ml-2`}>
+            {Math.round(actualProgress)}%
+          </div>
+        )}
       </div>
+
+      <div className="relative h-2 sm:h-3 bg-slate-200 rounded-full overflow-hidden shadow-inner mb-2 sm:mb-3">
+        <div
+          className={`h-full ${config.barClass} transition-all duration-500 rounded-full`}
+          style={{ width: `${actualProgress}%` }}
+        />
+      </div>
+
+      {(speed || timeRemaining) && (
+        <div className="flex items-center justify-between text-xs sm:text-sm text-slate-600">
+          {speed && (
+            <div className="flex items-center gap-1.5">
+              <Icons.Bolt className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{speed}</span>
+            </div>
+          )}
+          {timeRemaining && (
+            <div className="flex items-center gap-1.5">
+              <Icons.Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>{timeRemaining} remaining</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {status === 'done' && (
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-emerald-200">
+          <div className="flex items-center gap-2 text-emerald-700">
+            <Icons.Check className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm font-medium">Your file is ready to download!</span>
+          </div>
+        </div>
+      )}
+
+      {status === 'error' && onRetry && (
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-red-200">
+          <button
+            onClick={onRetry}
+            className="w-full min-h-[44px] px-4 py-2 sm:py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm sm:text-base font-medium rounded-lg sm:rounded-xl transition-all duration-200 hover:shadow-glow touch-manipulation active:scale-95"
+          >
+            Try Again
+          </button>
+        </div>
       )}
     </div>
   );
