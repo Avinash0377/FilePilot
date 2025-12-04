@@ -77,6 +77,7 @@ export default function ZipFilesPage() {
           accept="*"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="file"
         />
 
         {files.length > 0 && (

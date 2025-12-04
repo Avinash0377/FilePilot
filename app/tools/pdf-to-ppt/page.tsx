@@ -85,6 +85,7 @@ export default function PdfToPptPage() {
           accept=".pdf"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="PDF"
         />
 
         {files.length > 0 && (

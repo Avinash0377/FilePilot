@@ -85,6 +85,7 @@ export default function PptToPdfPage() {
           accept=".pptx,.ppt"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="PPT"
         />
 
         {files.length > 0 && (

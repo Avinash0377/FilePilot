@@ -1,6 +1,7 @@
 'use client';
 
 import { Icons } from './Icons';
+import { useEffect, useState } from 'react';
 
 export type ProgressStatus = 'idle' | 'uploading' | 'converting' | 'done' | 'error';
 
@@ -32,6 +33,37 @@ export default function ProgressIndicator({
   timeRemaining,
   onRetry
 }: ProgressIndicatorProps) {
+  // Animated progress for converting status
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+
+  useEffect(() => {
+    if (status === 'converting' && !progress) {
+      // Smooth animation from 0 to 95% over time
+      const interval = setInterval(() => {
+        setAnimatedProgress(prev => {
+          if (prev >= 95) return 95; // Cap at 95% until done
+          return prev + 1;
+        });
+      }, 100); // Update every 100ms
+
+      return () => clearInterval(interval);
+    } else if (status === 'uploading' && !progress) {
+      // Quick animation for uploading
+      const interval = setInterval(() => {
+        setAnimatedProgress(prev => {
+          if (prev >= 30) return 30;
+          return prev + 2;
+        });
+      }, 50);
+
+      return () => clearInterval(interval);
+    } else if (status === 'idle') {
+      setAnimatedProgress(0);
+    } else if (status === 'done') {
+      setAnimatedProgress(100);
+    }
+  }, [status, progress]);
+
   const statusConfig = {
     idle: {
       barClass: 'bg-slate-300',
@@ -73,11 +105,8 @@ export default function ProgressIndicator({
   const config = statusConfig[status];
   const StatusIcon = StatusIcons[status];
 
-  // Calculate actual progress
-  const actualProgress = status === 'idle' ? 0
-    : status === 'done' ? 100
-      : status === 'error' ? 100
-        : progress || (status === 'uploading' ? 30 : 70);
+  // Use provided progress or animated progress
+  const actualProgress = progress || animatedProgress;
 
   return (
     <div className={`w-full p-6 rounded-2xl ${config.bgColor} shadow-soft-md transition-all duration-300 animate-fade-in`}>

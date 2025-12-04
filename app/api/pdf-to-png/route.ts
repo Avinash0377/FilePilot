@@ -22,19 +22,19 @@ export async function POST(request: NextRequest) {
   if (!rateLimit.allowed) {
     return rateLimitResponse(rateLimit.reset);
   }
-  
+
   let inputPath = '';
   let outputDir = '';
   let zipPath = '';
-  
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    
+
     if (!file) {
       return errorResponse('No file provided');
     }
-    
+
     if (!validateFileSize(file.size)) {
       return errorResponse('File size exceeds 50MB limit');
     }
@@ -44,27 +44,26 @@ export async function POST(request: NextRequest) {
     if (!validation.valid) {
       return errorResponse(validation.error || 'Invalid file');
     }
-    
-    
-    
+
     inputPath = await saveUploadedFile(file);
     outputDir = path.join(TMP_DIR, uuidv4());
     await fs.mkdir(outputDir, { recursive: true });
-    
+
     const baseName = path.basename(file.name, '.pdf');
     const outputPattern = path.join(outputDir, `${baseName}.png`);
-    
-    // Convert PDF to PNG using ImageMagick
-    await execAsync(`convert -density 150 "${inputPath}" "${outputPattern}"`);
-    
+
+    // Convert PDF to PNG using ImageMagick with high quality
+    // 300 DPI for high-quality output
+    await execAsync(`convert -density 300 -quality 100 "${inputPath}" "${outputPattern}"`);
+
     // Get all generated files
     const files = await fs.readdir(outputDir);
     const pngFiles = files.filter(f => f.endsWith('.png'));
-    
+
     if (pngFiles.length === 0) {
       return errorResponse('Conversion failed. No images generated.');
     }
-    
+
     if (pngFiles.length === 1) {
       // Return single PNG
       const singlePath = path.join(outputDir, pngFiles[0]);
@@ -72,30 +71,24 @@ export async function POST(request: NextRequest) {
       const response = fileResponse(buffer, `${baseName}.png`, 'image/png');
 
       const rateLimitHeaders = createRateLimitHeaders(rateLimit.limit, rateLimit.remaining, rateLimit.reset);
-
       Object.entries(rateLimitHeaders).forEach(([key, value]) => {
-
         response.headers.set(key, value);
-
       });
 
       return response;
     }
-    
+
     // Multiple pages - create zip
     zipPath = path.join(TMP_DIR, `${uuidv4()}.zip`);
     const pngPaths = pngFiles.map(f => `"${path.join(outputDir, f)}"`).join(' ');
     await execAsync(`zip -j "${zipPath}" ${pngPaths}`);
-    
+
     const buffer = await readFileAsBuffer(zipPath);
     const response = fileResponse(buffer, `${baseName}-images.zip`, 'application/zip');
 
     const rateLimitHeaders = createRateLimitHeaders(rateLimit.limit, rateLimit.remaining, rateLimit.reset);
-
     Object.entries(rateLimitHeaders).forEach(([key, value]) => {
-
       response.headers.set(key, value);
-
     });
 
     return response;

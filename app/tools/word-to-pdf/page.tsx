@@ -87,6 +87,7 @@ export default function WordToPdfPage() {
           accept=".doc,.docx"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Word"
         />
 
         {files.length > 0 && (

@@ -65,6 +65,7 @@ export default function ImagesToPdfPage() {
           accept=".jpg,.jpeg,.png"
           multiple={true}
           onFilesSelected={setFiles}
+          fileType="Image"
         />
 
         {files.length > 0 && (

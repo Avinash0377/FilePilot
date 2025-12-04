@@ -72,6 +72,7 @@ export default function OcrImagePage() {
           accept=".png,.jpg,.jpeg,.bmp,.tiff,.gif"
           multiple={false}
           onFilesSelected={setFiles}
+          fileType="Image"
         />
 
         {files.length > 0 && (

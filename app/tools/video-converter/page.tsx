@@ -94,6 +94,7 @@ export default function VideoConverterPage() {
           accept=".mp4,.webm"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Video"
         />
 
         {files.length > 0 && (

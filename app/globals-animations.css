@@ -1,0 +1,46 @@
+/* ==========================================
+   Logo & Icon Animations for Homepage
+   ========================================== */
+
+/* Logo Breathing Animation */
+@keyframes logo-breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 10px 30px rgba(16, 185, 129, 0.3));
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 15px 40px rgba(16, 185, 129, 0.5));
+    }
+}
+
+/* Icon Float with Rotation */
+@keyframes icon-float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    33% {
+        transform: translateY(-15px) rotate(5deg);
+    }
+
+    66% {
+        transform: translateY(-8px) rotate(-5deg);
+    }
+}
+
+/* Orbital Movement */
+@keyframes orbit {
+    0% {
+        transform: rotate(0deg) translateX(0px) rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg) translateX(10px) rotate(-360deg);
+    }
+}

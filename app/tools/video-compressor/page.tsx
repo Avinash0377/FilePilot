@@ -92,6 +92,7 @@ export default function VideoCompressorPage() {
           accept=".mp4"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Video"
         />
 
         {files.length > 0 && (

@@ -69,6 +69,7 @@ export default function UnzipFilesPage() {
           accept=".zip"
           multiple={false}
           onFilesSelected={setFiles}
+          fileType="ZIP"
         />
 
         {files.length > 0 && (

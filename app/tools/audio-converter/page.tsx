@@ -94,6 +94,7 @@ export default function AudioConverterPage() {
           accept=".mp3,.wav"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Audio"
         />
 
         {files.length > 0 && (

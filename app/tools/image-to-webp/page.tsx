@@ -85,6 +85,7 @@ export default function ImageToWebpPage() {
           accept=".jpg,.jpeg,.png"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Image"
         />
 
         {files.length > 0 && (

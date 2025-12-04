@@ -73,6 +73,7 @@ export default function SplitPdfPage() {
           accept=".pdf"
           multiple={false}
           onFilesSelected={setFiles}
+          fileType="PDF"
         />
 
         {files.length > 0 && (

@@ -86,6 +86,7 @@ export default function JpgToPngPage() {
           accept=".jpg,.jpeg"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Image"
         />
 
         {files.length > 0 && (

@@ -113,6 +113,7 @@ export default function ImageCompressorPage() {
           accept=".jpg,.jpeg,.png,.webp"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Image"
         />
 
         {files.length > 0 && (

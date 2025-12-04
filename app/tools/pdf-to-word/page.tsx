@@ -97,6 +97,7 @@ export default function PdfToWordPage() {
           accept=".pdf"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="PDF"
         />
 
         {files.length > 0 && (

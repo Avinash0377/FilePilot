@@ -8,6 +8,7 @@ interface FileUploadProps {
   multiple?: boolean;
   maxSize?: number;
   onFilesSelected: (files: File[]) => void;
+  fileType?: string; // e.g., "PDF", "Image", "Video", etc.
 }
 
 interface FilePreview {
@@ -20,7 +21,8 @@ export default function FileUpload({
   accept = '*',
   multiple = false,
   maxSize = 50 * 1024 * 1024,
-  onFilesSelected
+  onFilesSelected,
+  fileType = 'file'
 }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -200,11 +202,16 @@ export default function FileUpload({
             {isDragOver ? <Icons.Download className="w-6 h-6 sm:w-7 sm:h-7" /> : <Icons.Upload className="w-6 h-6 sm:w-7 sm:h-7" />}
           </div>
           <div>
-            <p className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
+            {/* Desktop Text */}
+            <p className="hidden sm:block text-base sm:text-lg font-semibold text-slate-900 mb-2">
               {isDragOver ? 'Drop your files here' : (multiple ? 'Drag & drop files here' : 'Drag & drop file here')}
             </p>
+            {/* Mobile Text */}
+            <p className="block sm:hidden text-base font-semibold text-slate-900 mb-2">
+              {multiple ? `Select ${fileType} files` : `Select ${fileType} file`}
+            </p>
             <p className="text-sm sm:text-base text-slate-600">
-              or <span className="text-brand-600 font-semibold">click to browse</span> from your computer
+              <span className="hidden sm:inline">or </span><span className="text-brand-600 font-semibold">Tap to browse</span><span className="hidden sm:inline"> from your computer</span>
             </p>
           </div>
 

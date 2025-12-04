@@ -72,6 +72,7 @@ export default function PdfToTextPage() {
           accept=".pdf"
           multiple={false}
           onFilesSelected={setFiles}
+          fileType="PDF"
         />
 
         {files.length > 0 && (

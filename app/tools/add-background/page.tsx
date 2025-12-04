@@ -103,6 +103,7 @@ export default function AddBackgroundPage() {
           accept=".png,.webp,.gif"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Image"
         />
 
         {files.length > 0 && (

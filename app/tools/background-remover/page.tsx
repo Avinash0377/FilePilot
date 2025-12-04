@@ -85,6 +85,7 @@ export default function BackgroundRemoverPage() {
           accept=".png,.jpg,.jpeg,.webp"
           multiple={true}
           onFilesSelected={handleFilesSelected}
+          fileType="Image"
         />
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">

@@ -88,12 +88,15 @@ export default function HomePage() {
               <div className="relative w-full max-w-lg">
                 {/* Main Logo Container */}
                 <div className="relative h-96 flex items-center justify-center">
-                  {/* Center Logo */}
-                  <div className="relative z-10">
+                  {/* Animated Background Glow */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-brand-500/20 via-brand-600/20 to-brand-700/20 rounded-full blur-3xl animate-pulse"></div>
+
+                  {/* Center Logo with Breathing Animation */}
+                  <div className="relative z-10" style={{ animation: 'logo-breathe 4s ease-in-out infinite' }}>
                     <img
                       src="/logo.png"
                       alt="FilePilot"
-                      className="w-80 h-80 object-contain drop-shadow-2xl animate-fade-in"
+                      className="w-80 h-80 object-contain"
                     />
                     {/* Tagline under logo */}
                     <div className="text-center mt-4 space-y-2">
@@ -106,35 +109,35 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Floating File Format Icons */}
+                  {/* Floating File Format Icons with Enhanced Animations */}
                   {/* PDF Icon - Top Left */}
-                  <div className="absolute top-0 left-0 w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.1s' }}>
-                    <Icons.PdfFile className="w-8 h-8 text-red-500" />
+                  <div className="absolute top-0 left-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 6s ease-in-out infinite' }}>
+                    <Icons.PdfFile className="w-8 h-8 text-red-600" />
                   </div>
 
                   {/* Image Icon - Top Right */}
-                  <div className="absolute top-12 right-8 w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.2s' }}>
-                    <Icons.ImageCompress className="w-7 h-7 text-blue-500" />
+                  <div className="absolute top-12 right-8 w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 5s ease-in-out infinite', animationDelay: '0.5s' }}>
+                    <Icons.ImageCompress className="w-7 h-7 text-blue-600" />
                   </div>
 
                   {/* Video Icon - Bottom Left */}
-                  <div className="absolute bottom-16 left-12 w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.3s' }}>
-                    <Icons.VideoConvert className="w-7 h-7 text-purple-500" />
+                  <div className="absolute bottom-16 left-12 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 5.5s ease-in-out infinite', animationDelay: '1s' }}>
+                    <Icons.VideoConvert className="w-7 h-7 text-purple-600" />
                   </div>
 
                   {/* Audio Icon - Bottom Right */}
-                  <div className="absolute bottom-8 right-0 w-16 h-16 rounded-2xl bg-pink-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.4s' }}>
-                    <Icons.AudioConvert className="w-8 h-8 text-pink-500" />
+                  <div className="absolute bottom-8 right-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 6.5s ease-in-out infinite', animationDelay: '1.5s' }}>
+                    <Icons.AudioConvert className="w-8 h-8 text-pink-600" />
                   </div>
 
                   {/* Word Icon - Middle Left */}
-                  <div className="absolute top-1/2 left-4 w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.5s' }}>
-                    <Icons.WordToPdf className="w-6 h-6 text-green-600" />
+                  <div className="absolute top-1/2 left-4 w-12 h-12 rounded-lg bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 5s ease-in-out infinite', animationDelay: '2s' }}>
+                    <Icons.WordToPdf className="w-6 h-6 text-green-700" />
                   </div>
 
                   {/* Archive Icon - Middle Right */}
-                  <div className="absolute top-1/3 right-4 w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center shadow-soft-md animate-fade-in hover:scale-110 transition-transform" style={{ animationDelay: '0.6s' }}>
-                    <Icons.ZipFiles className="w-6 h-6 text-orange-500" />
+                  <div className="absolute top-1/3 right-4 w-12 h-12 rounded-lg bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all duration-300" style={{ animation: 'icon-float 7s ease-in-out infinite', animationDelay: '2.5s' }}>
+                    <Icons.ZipFiles className="w-6 h-6 text-orange-600" />
                   </div>
                 </div>
               </div>
