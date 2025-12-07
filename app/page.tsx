@@ -239,7 +239,7 @@ export default function HomePage() {
                 'PDF to Word', 'Word to PDF', 'Merge PDF', 'Split PDF',
                 'Compress PDF', 'Images to PDF', 'PDF to PNG', 'JPG to PNG',
                 'PNG to JPG', 'Image Compressor', 'Image to WebP', 'Background Remover',
-                'PDF to PowerPoint', 'PowerPoint to PDF', 'OCR Image to Text', 'PDF to Text',
+                'PDF to PPT', 'PPT to PDF', 'OCR Image', 'PDF to Text',
                 'ZIP Files', 'Unzip Files', 'Audio Converter', 'Video Converter',
                 'Video Compressor', 'Add Background'
               ].map((tool, index) => (
