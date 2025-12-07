@@ -85,7 +85,7 @@ export const tools: Tool[] = [
   },
   {
     id: 'ppt-to-pdf',
-    title: 'PowerPoint to PDF',
+    title: 'PPT to PDF',
     description: 'Convert PowerPoint presentations to PDF',
     icon: 'PptToPdf',
     href: '/tools/ppt-to-pdf',
@@ -95,7 +95,7 @@ export const tools: Tool[] = [
   },
   {
     id: 'pdf-to-ppt',
-    title: 'PDF to PowerPoint',
+    title: 'PDF to PPT',
     description: 'Convert PDF files to PowerPoint presentations',
     icon: 'PdfToPpt',
     href: '/tools/pdf-to-ppt',
@@ -157,7 +157,7 @@ export const tools: Tool[] = [
   },
   {
     id: 'add-background',
-    title: 'Add Background Color',
+    title: 'Add Background',
     description: 'Add solid background color to transparent images',
     icon: 'BackgroundAdd',
     href: '/tools/add-background',
@@ -169,7 +169,7 @@ export const tools: Tool[] = [
   // Text/Doc Tools
   {
     id: 'ocr-image',
-    title: 'OCR Image to Text',
+    title: 'OCR Image',
     description: 'Extract text from images using OCR',
     icon: 'OcrText',
     href: '/tools/ocr-image',

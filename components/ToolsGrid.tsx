@@ -47,7 +47,7 @@ export default function ToolsGrid() {
   return (
     <div className="space-y-10">
       {/* Search and Filter */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
         <div className="flex flex-col gap-6">
           {/* Search Bar */}
           <div className="relative max-w-xl mx-auto w-full">
@@ -116,7 +116,7 @@ export default function ToolsGrid() {
             const IconComponent = categoryIconMap[category.id] ? Icons[categoryIconMap[category.id]] : Icons.File;
 
             return (
-              <div key={category.id} className="bg-white rounded-2xl shadow-soft-md p-6 sm:p-8">
+              <div key={category.id} className="bg-white rounded-2xl shadow-soft-md p-5 sm:p-8">
                 {/* Category Header with Visual Separator */}
                 <div className="mb-6">
                   <div className="flex items-center gap-4 mb-4">

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { tools } from '@/lib/tools';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://filepilot-production.up.railway.app';
+    const baseUrl = 'http://134.209.147.41';
 
     // Homepage
     const routes: MetadataRoute.Sitemap = [

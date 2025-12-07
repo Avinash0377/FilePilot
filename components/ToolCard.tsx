@@ -27,6 +27,23 @@ export default function ToolCard({
   const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
 
+  // Color mapping based on category
+  const getCategoryColors = (cat: string) => {
+    const colors: Record<string, string> = {
+      pdf: 'from-red-500 to-red-600 text-white',
+      image: 'from-violet-500 to-violet-600 text-white',
+      text: 'from-blue-500 to-blue-600 text-white',
+      video: 'from-pink-500 to-pink-600 text-white',
+      audio: 'from-amber-500 to-amber-600 text-white',
+      archive: 'from-emerald-500 to-emerald-600 text-white',
+      // Default fallback
+      default: 'from-brand-500 to-brand-600 text-white'
+    };
+    return colors[cat.toLowerCase()] || colors.default;
+  };
+
+  const colorClass = getCategoryColors(category);
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -66,7 +83,7 @@ export default function ToolCard({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`group relative block p-6 sm:p-8 bg-white rounded-2xl border-2 transition-all duration-300 hover:shadow-soft-xl hover:-translate-y-1 ${isDragging
+      className={`group relative block p-5 sm:p-8 bg-white rounded-2xl border-2 transition-all duration-300 hover:shadow-soft-xl hover:-translate-y-1 ${isDragging
         ? 'border-brand-500 bg-brand-50 shadow-soft-xl scale-105'
         : 'border-slate-200 hover:border-brand-300'
         }`}
@@ -84,20 +101,20 @@ export default function ToolCard({
       )}
 
       {/* Category Badge */}
-      <div className="absolute top-4 right-4 px-3 py-1 bg-brand-100 text-brand-700 text-xs font-semibold rounded-full">
+      <div className="absolute top-4 right-4 px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full group-hover:bg-brand-100 group-hover:text-brand-700 transition-colors">
         {category}
       </div>
 
       {/* Icon */}
-      <div className="w-14 h-14 sm:w-16 sm:h-16 mb-4 sm:mb-6 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 group-hover:scale-110">
-        {Icons[iconName] && React.createElement(Icons[iconName], { className: "w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" })}
+      <div className={`w-12 h-12 sm:w-16 sm:h-16 mb-4 sm:mb-6 rounded-xl bg-gradient-to-br ${colorClass} flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300 group-hover:scale-110`}>
+        {Icons[iconName] && React.createElement(Icons[iconName], { className: "w-6 h-6 sm:w-8 sm:h-8 text-white group-hover:rotate-12 transition-transform duration-300" })}
       </div>
 
       {/* Content */}
-      <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3 group-hover:text-brand-600 transition-colors">
+      <h3 className="text-[17px] sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3 group-hover:text-brand-600 transition-colors leading-tight tracking-tight">
         {name}
       </h3>
-      <p className="text-sm sm:text-base text-slate-600 mb-4 leading-relaxed line-clamp-2">
+      <p className="text-xs sm:text-base text-slate-600 mb-4 leading-relaxed line-clamp-2">
         {description}
       </p>
 
@@ -145,9 +162,9 @@ export default function ToolCard({
       </div>
 
       {/* Arrow Icon */}
-      <div className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center group-hover:bg-brand-600 transition-all duration-300">
+      <div className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-brand-600 transition-all duration-300">
         <svg
-          className="w-4 h-4 text-brand-600 group-hover:text-white transition-all duration-300 group-hover:translate-x-0.5"
+          className="w-4 h-4 text-slate-400 group-hover:text-white transition-all duration-300 group-hover:translate-x-0.5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

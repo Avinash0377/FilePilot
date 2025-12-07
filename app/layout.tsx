@@ -45,11 +45,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FilePilot — Free File Converter",
     description: "Convert PDF, images, audio, and video files instantly. Free, private, and secure — all processing happens locally.",
-    url: "https://filepilot.com",
+    url: "http://134.209.147.41",
     siteName: "FilePilot",
     images: [
       {
-        url: "https://filepilot.com/opengraph.png",
+        url: "http://134.209.147.41/opengraph-image",
         width: 1200,
         height: 630
       }
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FilePilot — Free File Converter",
     description: "Fast and secure conversion tools for PDF, images, videos, audio, and more.",
-    images: ["https://filepilot.com/twitter-image.png"]
+    images: ["http://134.209.147.41/opengraph-image"]
   },
   robots: {
     index: true,
@@ -74,7 +74,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const canonical = "https://filepilot.com";
+  const canonical = "http://134.209.147.41";
 
   return (
     <html lang="en">
@@ -88,7 +88,7 @@ export default function RootLayout({
             "operatingSystem": "All",
             "applicationCategory": "Utility",
             "description": "Free online file converter with 18+ tools for PDF, images, video, audio, text, and archives.",
-            "url": "https://filepilot.com",
+            "url": "http://134.209.147.41",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
           })
         }} />

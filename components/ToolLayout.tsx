@@ -42,7 +42,7 @@ export default function ToolLayout({ title, description, children, toolId }: Too
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 truncate">{title}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 truncate tracking-tight">{title}</h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 line-clamp-2">{description}</p>
             </div>
           </div>

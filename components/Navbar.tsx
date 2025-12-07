@@ -69,6 +69,12 @@ export default function Navbar() {
               All Tools
             </Link>
             <Link
+              href="/contact"
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-all duration-200"
+            >
+              Contact
+            </Link>
+            <Link
               href="/privacy"
               className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-all duration-200"
             >

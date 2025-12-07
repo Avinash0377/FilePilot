@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'https://filepilot.com/sitemap.xml', // Update with actual domain
+        sitemap: 'http://134.209.147.41/sitemap.xml',
     };
 }
