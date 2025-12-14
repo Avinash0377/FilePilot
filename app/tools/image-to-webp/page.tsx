@@ -103,7 +103,7 @@ export default function ImageToWebpPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="image" />
         )}
       </div>
 

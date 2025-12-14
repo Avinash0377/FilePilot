@@ -103,7 +103,7 @@ export default function PptToPdfPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="pdf" />
         )}
       </div>
 

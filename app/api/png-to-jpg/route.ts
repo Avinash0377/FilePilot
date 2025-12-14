@@ -5,13 +5,13 @@ import {
   readFileAsBuffer,
   errorResponse,
   fileResponse,
-  validateFileType,
   validateFileTypeAndContent,
   validateFileSize,
   execAsync,
   generateTmpPath,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   const rateLimit = await checkRateLimit(request, rateLimitConfigs.conversion);
@@ -21,31 +21,32 @@ export async function POST(request: NextRequest) {
 
   let inputPath = '';
   let outputPath = '';
+  const startTime = Date.now();
+  const trackingId = trackConversionStart('png-to-jpg');
 
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
     if (!file) {
+      trackConversionEnd(trackingId, 'png-to-jpg', 'error', Date.now() - startTime, 0, 'No file');
       return errorResponse('No file provided');
     }
 
     if (!validateFileSize(file.size)) {
+      trackConversionEnd(trackingId, 'png-to-jpg', 'error', Date.now() - startTime, file.size, 'File too large');
       return errorResponse('File size exceeds 50MB limit');
     }
 
-    // Validate file type and content
     const validation = await validateFileTypeAndContent(file, ['.png']);
     if (!validation.valid) {
+      trackConversionEnd(trackingId, 'png-to-jpg', 'error', Date.now() - startTime, file.size, 'Invalid file');
       return errorResponse(validation.error || 'Invalid file');
     }
-
-    
 
     inputPath = await saveUploadedFile(file);
     outputPath = generateTmpPath('.jpg');
 
-    // Convert PNG to JPG using ImageMagick
     await execAsync(`convert "${inputPath}" -background white -flatten "${outputPath}"`);
 
     const buffer = await readFileAsBuffer(outputPath);
@@ -56,11 +57,14 @@ export async function POST(request: NextRequest) {
     Object.entries(rateLimitHeaders).forEach(([key, value]) => {
       response.headers.set(key, value);
     });
+
+    trackConversionEnd(trackingId, 'png-to-jpg', 'success', Date.now() - startTime, file.size);
+    await cleanupFiles(inputPath, outputPath);
     return response;
   } catch (error) {
     console.error('PNG to JPG error:', error);
-    return errorResponse('Conversion failed. Please try again.', 500);
-  } finally {
+    trackConversionEnd(trackingId, 'png-to-jpg', 'error', Date.now() - startTime, 0, 'Conversion failed');
     await cleanupFiles(inputPath, outputPath);
+    return errorResponse('Conversion failed. Please try again.', 500);
   }
 }

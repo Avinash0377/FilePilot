@@ -103,7 +103,7 @@ export default function PngToJpgPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="image" />
         )}
       </div>
 

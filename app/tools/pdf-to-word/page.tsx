@@ -154,7 +154,7 @@ export default function PdfToWordPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="pdf" />
         )}
       </div>
 

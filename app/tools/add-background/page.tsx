@@ -119,8 +119,8 @@ export default function AddBackgroundPage() {
                     key={color.value}
                     onClick={() => setBgColor(color.value)}
                     className={`w-8 h-8 rounded-lg border-2 transition-all ${bgColor === color.value
-                        ? 'border-emerald-500 ring-2 ring-emerald-200'
-                        : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-emerald-500 ring-2 ring-emerald-200'
+                      : 'border-gray-200 hover:border-gray-300'
                       }`}
                     style={{ backgroundColor: color.value }}
                     title={color.name}
@@ -200,7 +200,7 @@ export default function AddBackgroundPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="image" />
         )}
       </div>
 

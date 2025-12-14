@@ -196,7 +196,7 @@ export default function ImageCompressorPage() {
               </div>
             </div>
 
-            <MultiFileDownloadButton results={results} />
+            <MultiFileDownloadButton results={results} category="image" />
           </div>
         )}
       </div>

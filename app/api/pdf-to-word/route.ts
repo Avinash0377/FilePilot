@@ -12,6 +12,7 @@ import {
   execAsync,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   // Check rate limit
@@ -23,22 +24,27 @@ export async function POST(request: NextRequest) {
 
   let inputPath = '';
   let outputPath = '';
+  const startTime = Date.now();
+  const trackingId = trackConversionStart('pdf-to-word');
 
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
     if (!file) {
+      trackConversionEnd(trackingId, 'pdf-to-word', 'error', Date.now() - startTime, 0, 'No file provided');
       return errorResponse('No file provided');
     }
 
     if (!validateFileSize(file.size)) {
+      trackConversionEnd(trackingId, 'pdf-to-word', 'error', Date.now() - startTime, file.size, 'File too large');
       return errorResponse('File size exceeds 50MB limit');
     }
 
     // Validate file type and content (checks actual PDF signature)
     const validation = await validateFileTypeAndContent(file, ['.pdf']);
     if (!validation.valid) {
+      trackConversionEnd(trackingId, 'pdf-to-word', 'error', Date.now() - startTime, file.size, 'Invalid file');
       return errorResponse(validation.error || 'Invalid PDF file');
     }
 
@@ -83,6 +89,7 @@ export async function POST(request: NextRequest) {
         outputPath = path.join(outputDir, anyDocx);
         console.log('Found fallback docx file:', outputPath);
       } else {
+        trackConversionEnd(trackingId, 'pdf-to-word', 'error', Date.now() - startTime, file.size, 'No output created');
         return errorResponse('Conversion failed - no DOCX file created', 500);
       }
     }
@@ -110,12 +117,16 @@ export async function POST(request: NextRequest) {
       response.headers.set(key, value);
     });
 
+    // Track success
+    trackConversionEnd(trackingId, 'pdf-to-word', 'success', Date.now() - startTime, file.size);
+
     // Cleanup AFTER reading buffer into memory
     await cleanupFiles(inputPath, outputPath);
 
     return response;
   } catch (error) {
     console.error('PDF to Word conversion error:', error);
+    trackConversionEnd(trackingId, 'pdf-to-word', 'error', Date.now() - startTime, 0, 'Conversion failed');
     // Cleanup on error too
     await cleanupFiles(inputPath, outputPath);
     return errorResponse('Conversion failed. Please try again.', 500);

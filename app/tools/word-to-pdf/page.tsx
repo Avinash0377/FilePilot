@@ -111,7 +111,7 @@ export default function WordToPdfPage() {
         )}
 
         {results.length > 0 && (
-          <MultiFileDownloadButton results={results} />
+          <MultiFileDownloadButton results={results} category="pdf" />
         )}
       </div>
 

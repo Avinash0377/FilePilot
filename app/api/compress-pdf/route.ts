@@ -5,13 +5,13 @@ import {
   readFileAsBuffer,
   errorResponse,
   fileResponse,
-  validateFileType,
   validateFileTypeAndContent,
   validateFileSize,
   execAsync,
   generateTmpPath,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   const rateLimit = await checkRateLimit(request, rateLimitConfigs.conversion);
@@ -21,48 +21,41 @@ export async function POST(request: NextRequest) {
 
   let inputPath = '';
   let outputPath = '';
+  const startTime = Date.now();
+  const trackingId = trackConversionStart('compress-pdf');
 
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
     if (!file) {
+      trackConversionEnd(trackingId, 'compress-pdf', 'error', Date.now() - startTime, 0, 'No file');
       return errorResponse('No file provided');
     }
 
     if (!validateFileSize(file.size)) {
+      trackConversionEnd(trackingId, 'compress-pdf', 'error', Date.now() - startTime, file.size, 'File too large');
       return errorResponse('File size exceeds 50MB limit');
     }
 
-    // Validate file type and content
     const validation = await validateFileTypeAndContent(file, ['.pdf']);
     if (!validation.valid) {
+      trackConversionEnd(trackingId, 'compress-pdf', 'error', Date.now() - startTime, file.size, 'Invalid file');
       return errorResponse(validation.error || 'Invalid file');
     }
-
-
 
     inputPath = await saveUploadedFile(file);
     outputPath = generateTmpPath('.pdf');
 
-    // Compress PDF using Ghostscript with optimized settings
-    // -dNumRenderingThreads=4: Use multiple CPU cores
-    // -dNOGC: Disable garbage collection for speed
     await execAsync(`gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -dNumRenderingThreads=4 -dNOGC -sOutputFile="${outputPath}" "${inputPath}"`);
 
     let finalBuffer: Buffer;
-    let finalPath = outputPath;
-
-    // Check if compression actually reduced size
-    const crypto = await import('crypto');
     const fs = await import('fs/promises');
     const inputStats = await fs.stat(inputPath);
     const outputStats = await fs.stat(outputPath);
 
     if (outputStats.size >= inputStats.size) {
-      console.log(`Compression failed to reduce size (${outputStats.size} >= ${inputStats.size}). Returning original.`);
       finalBuffer = await readFileAsBuffer(inputPath);
-      finalPath = inputPath;
     } else {
       finalBuffer = await readFileAsBuffer(outputPath);
     }
@@ -74,11 +67,14 @@ export async function POST(request: NextRequest) {
     Object.entries(rateLimitHeaders).forEach(([key, value]) => {
       response.headers.set(key, value);
     });
+
+    trackConversionEnd(trackingId, 'compress-pdf', 'success', Date.now() - startTime, file.size);
+    await cleanupFiles(inputPath, outputPath);
     return response;
   } catch (error) {
     console.error('Compress PDF error:', error);
-    return errorResponse('Compression failed. Please try again.', 500);
-  } finally {
+    trackConversionEnd(trackingId, 'compress-pdf', 'error', Date.now() - startTime, 0, 'Compression failed');
     await cleanupFiles(inputPath, outputPath);
+    return errorResponse('Compression failed. Please try again.', 500);
   }
 }
