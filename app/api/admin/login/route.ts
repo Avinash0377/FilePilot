@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get password from environment variable (REQUIRED in production)
-        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+        // Get password from environment variable (with fallback for development)
+        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Avinash333@';
 
         if (!ADMIN_PASSWORD) {
             console.error('ADMIN_PASSWORD environment variable is not set!');
