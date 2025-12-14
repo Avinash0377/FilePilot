@@ -1,7 +1,11 @@
 'use client';
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { ToolUsageData } from '@/lib/admin/types';
+
+interface ToolUsageData {
+    tool: string;
+    count: number;
+}
 
 interface ToolUsageChartProps {
     data: ToolUsageData[];

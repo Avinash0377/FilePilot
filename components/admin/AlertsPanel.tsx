@@ -1,5 +1,11 @@
-import type { Alert } from '@/lib/admin/types';
 import { AlertTriangle, XCircle, Info } from 'lucide-react';
+
+interface Alert {
+    id: string;
+    type: 'warning' | 'error' | 'info';
+    message: string;
+    timestamp: Date;
+}
 
 interface AlertsPanelProps {
     alerts: Alert[];

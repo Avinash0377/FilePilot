@@ -1,8 +1,14 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import type { LogEntry } from '@/lib/admin/types';
 import { CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react';
+
+interface LogEntry {
+    id: string;
+    timestamp: Date;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+}
 
 interface LogStreamProps {
     logs: LogEntry[];
@@ -40,20 +46,24 @@ export default function LogStream({ logs }: LogStreamProps) {
                 ref={scrollRef}
                 className="p-4 space-y-2 max-h-[400px] overflow-y-auto font-mono text-sm"
             >
-                {logs.map((log) => {
-                    const Icon = iconMap[log.type];
-                    return (
-                        <div key={log.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded">
-                            <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${colorMap[log.type]}`} />
-                            <div className="flex-1 min-w-0">
-                                <span className="text-gray-500">
-                                    [{log.timestamp.toLocaleTimeString()}]
-                                </span>
-                                <span className="text-gray-900 ml-2">{log.message}</span>
+                {logs.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No recent activity</p>
+                ) : (
+                    logs.map((log) => {
+                        const Icon = iconMap[log.type];
+                        return (
+                            <div key={log.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded">
+                                <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${colorMap[log.type]}`} />
+                                <div className="flex-1 min-w-0">
+                                    <span className="text-gray-500">
+                                        [{log.timestamp.toLocaleTimeString()}]
+                                    </span>
+                                    <span className="text-gray-900 ml-2">{log.message}</span>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
         </div>
     );

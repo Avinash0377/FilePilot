@@ -1,29 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     LayoutDashboard,
     BarChart3,
-    Wrench,
     FileText,
     Settings,
     Menu,
-    X
+    X,
+    LogOut
 } from 'lucide-react';
 import { useState } from 'react';
 
 const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'Tools', href: '/admin/tools', icon: Wrench },
     { name: 'Logs', href: '/admin/logs', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setLoggingOut(true);
+        try {
+            await fetch('/api/admin/login', { method: 'DELETE' });
+            router.push('/admin/login');
+        } catch (err) {
+            console.error(err);
+            setLoggingOut(false);
+        }
+    };
 
     return (
         <>
@@ -88,6 +100,18 @@ export default function Sidebar() {
                             );
                         })}
                     </nav>
+
+                    {/* Logout Button */}
+                    <div className="px-4 py-4 border-t border-gray-200">
+                        <button
+                            onClick={handleLogout}
+                            disabled={loggingOut}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            {loggingOut ? 'Logging out...' : 'Logout'}
+                        </button>
+                    </div>
 
                     {/* Footer */}
                     <div className="px-6 py-4 border-t border-gray-200">

@@ -1,7 +1,12 @@
 'use client';
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import type { TrendDataPoint } from '@/lib/admin/types';
+
+interface TrendDataPoint {
+    day: string;
+    success: number;
+    failed: number;
+}
 
 interface TrendChartProps {
     data: TrendDataPoint[];
