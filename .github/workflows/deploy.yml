@@ -58,22 +58,23 @@ jobs:
       - name: Deploy to Droplet
         uses: appleboy/ssh-action@v1.0.3
         env:
-          IMAGE_TAG: ghcr.io/${{ github.repository }}:latest
           GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: IMAGE_TAG,GH_TOKEN
+          envs: GH_TOKEN
           script: |
             echo "🚀 Starting deployment..."
             
             # Login to GitHub Container Registry
             echo "$GH_TOKEN" | docker login ghcr.io -u avinash0377 --password-stdin
             
-            # Pull latest image (lowercase required for ghcr.io)
-            IMAGE_LOWER=$(echo "$IMAGE_TAG" | tr '[:upper:]' '[:lower:]')
-            docker pull $IMAGE_LOWER
+            # Image name MUST be lowercase for ghcr.io
+            IMAGE="ghcr.io/avinash0377/filepilot:latest"
+            
+            # Pull latest image
+            docker pull $IMAGE
             
             # Stop and remove old container
             docker stop filepilot || true
@@ -85,7 +86,7 @@ jobs:
               -p 3000:3000 \
               --restart unless-stopped \
               -v /tmp/filepilot:/tmp/filepilot \
-              $IMAGE_LOWER
+              $IMAGE
             
             # Cleanup old images
             docker image prune -f
