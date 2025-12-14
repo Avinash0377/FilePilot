@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y \
     openjdk-17-jre-headless \
     ghostscript \
     graphicsmagick \
+    imagemagick \
     ffmpeg \
     poppler-utils \
     fonts-liberation \
