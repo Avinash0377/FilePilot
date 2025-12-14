@@ -57,18 +57,23 @@ jobs:
       # 6. Deploy to DigitalOcean Droplet
       - name: Deploy to Droplet
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          IMAGE_TAG: ghcr.io/${{ github.repository }}:latest
+          GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_TAG,GH_TOKEN
           script: |
             echo "🚀 Starting deployment..."
             
             # Login to GitHub Container Registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "$GH_TOKEN" | docker login ghcr.io -u avinash0377 --password-stdin
             
-            # Pull latest image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            # Pull latest image (lowercase required for ghcr.io)
+            IMAGE_LOWER=$(echo "$IMAGE_TAG" | tr '[:upper:]' '[:lower:]')
+            docker pull $IMAGE_LOWER
             
             # Stop and remove old container
             docker stop filepilot || true
@@ -80,7 +85,7 @@ jobs:
               -p 3000:3000 \
               --restart unless-stopped \
               -v /tmp/filepilot:/tmp/filepilot \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+              $IMAGE_LOWER
             
             # Cleanup old images
             docker image prune -f
