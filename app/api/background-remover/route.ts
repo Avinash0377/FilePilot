@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // Convert File to Blob for the library
     const fileBuffer = await file.arrayBuffer();
-    const fileBlob = new Blob([fileBuffer]);
+    const fileBlob = new Blob([fileBuffer], { type: file.type || 'image/jpeg' });
 
     // Remove background using AI model
     // publicPath is important for locating the WASM/ONNX files

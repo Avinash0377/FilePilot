@@ -84,14 +84,19 @@ export async function uploadWithProgress(
  */
 function parseHeaders(headerString: string): Headers {
     const headers = new Headers();
+    if (!headerString) return headers;
+
     const lines = headerString.trim().split(/[\r\n]+/);
 
     lines.forEach((line) => {
-        const parts = line.split(': ');
-        const header = parts.shift();
-        const value = parts.join(': ');
-        if (header) {
-            headers.append(header, value);
+        // Split only on first ': ' to handle values that contain ': '
+        const colonIndex = line.indexOf(':');
+        if (colonIndex > 0) {
+            const header = line.substring(0, colonIndex).trim();
+            const value = line.substring(colonIndex + 1).trim();
+            if (header && value) {
+                headers.append(header, value);
+            }
         }
     });
 

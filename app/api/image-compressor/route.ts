@@ -61,22 +61,17 @@ export async function POST(request: NextRequest) {
     
     if (ext === '.png') {
       // For PNG: Use pngquant for lossy compression with target size
-      // Try progressively more aggressive quality ranges
+      // First try with different quality levels to achieve target size
       let bestOutput = '';
       let bestSize = originalSize;
       
-      // Start with most aggressive compression first for smaller targets
-      const qualityRanges = targetPercentValue <= 50 
-        ? ['0-20', '10-30', '20-40', '30-50', '40-60', '50-70', '60-80']
-        : ['20-40', '30-50', '40-60', '50-70', '60-80', '70-90', '80-100'];
-      
-      for (const qualityRange of qualityRanges) {
+      for (const qualityRange of ['20-40', '30-50', '40-60', '50-70', '60-80', '70-90', '80-100']) {
         const tempOutput = generateTmpPath('.png');
         try {
           await execAsync(`pngquant --quality=${qualityRange} --force --output "${tempOutput}" "${inputPath}" 2>/dev/null || convert "${inputPath}" -quality 80 "${tempOutput}"`);
           const stats = await fs.stat(tempOutput);
           
-          if (stats.size <= targetSize) {
+          if (stats.size <= targetSize && stats.size < bestSize) {
             if (bestOutput) await cleanupFiles(bestOutput);
             bestOutput = tempOutput;
             bestSize = stats.size;
@@ -95,42 +90,11 @@ export async function POST(request: NextRequest) {
       
       if (bestOutput) {
         outputPath = bestOutput;
-      }
-      
-      // Check if we still haven't reached target - apply resize
-      const currentStats = bestOutput ? await fs.stat(outputPath) : { size: originalSize };
-      if (currentStats.size > targetSize) {
-        // Calculate resize factor to achieve target size
-        // Size scales roughly with area (width * height), so use sqrt
-        const scaleFactor = Math.sqrt(targetSize / currentStats.size) * 0.95; // 5% buffer
-        const resizePercent = Math.max(20, Math.floor(scaleFactor * 100));
-        
-        const resizedOutput = generateTmpPath('.png');
-        const sourceFile = bestOutput || inputPath;
-        
-        // Resize and apply pngquant again
-        await execAsync(`convert "${sourceFile}" -resize ${resizePercent}% "${resizedOutput}"`);
-        
-        // Try pngquant on resized image
-        const finalOutput = generateTmpPath('.png');
-        try {
-          await execAsync(`pngquant --quality=40-70 --force --output "${finalOutput}" "${resizedOutput}" 2>/dev/null`);
-          const finalStats = await fs.stat(finalOutput);
-          
-          if (finalStats.size <= targetSize * 1.1) {
-            if (bestOutput && bestOutput !== outputPath) await cleanupFiles(bestOutput);
-            await cleanupFiles(resizedOutput);
-            outputPath = finalOutput;
-          } else {
-            await cleanupFiles(finalOutput);
-            if (bestOutput && bestOutput !== outputPath) await cleanupFiles(bestOutput);
-            outputPath = resizedOutput;
-          }
-        } catch {
-          await cleanupFiles(finalOutput);
-          if (bestOutput && bestOutput !== outputPath) await cleanupFiles(bestOutput);
-          outputPath = resizedOutput;
-        }
+      } else {
+        // Fallback: use ImageMagick with resize if needed
+        const scaleFactor = Math.sqrt(targetPercentValue / 100);
+        const resizePercent = Math.floor(scaleFactor * 100);
+        await execAsync(`convert "${inputPath}" -resize ${resizePercent}% -quality 85 "${outputPath}"`);
       }
     } else {
       // For JPEG/WebP: Binary search for the right quality level

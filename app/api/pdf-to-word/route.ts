@@ -7,11 +7,9 @@ import {
   readFileAsBuffer,
   errorResponse,
   fileResponse,
-  validateFileType,
   validateFileTypeAndContent,
   validateFileSize,
   execAsync,
-  TMP_DIR,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
 
@@ -46,30 +44,52 @@ export async function POST(request: NextRequest) {
 
     inputPath = await saveUploadedFile(file);
     const outputDir = path.dirname(inputPath);
+    const baseName = path.basename(inputPath, '.pdf');
+    outputPath = path.join(outputDir, `${baseName}.docx`);
 
     // Convert PDF to DOCX using LibreOffice
-    // Set HOME to tmp dir to avoid permission issues
-    const { stdout, stderr } = await execAsync(
-      `HOME=${TMP_DIR} libreoffice --headless --infilter="writer_pdf_import" --convert-to docx --outdir "${outputDir}" "${inputPath}"`,
-      { timeout: 120000 }
-    );
+    // Using simple, reliable command without complex filters
+    const command = `libreoffice --headless --infilter="writer_pdf_import" --convert-to docx --outdir "${outputDir}" "${inputPath}"`;
+
+    console.log('Running LibreOffice command:', command);
+
+    const { stdout, stderr } = await execAsync(command, {
+      timeout: 120000, // 2 minutes timeout
+      env: {
+        ...process.env,
+        HOME: '/tmp', // LibreOffice needs a writable HOME
+      }
+    });
 
     console.log('LibreOffice stdout:', stdout);
     if (stderr) console.log('LibreOffice stderr:', stderr);
 
-    // Get the output filename
-    const baseName = path.basename(inputPath, '.pdf');
-    outputPath = path.join(outputDir, `${baseName}.docx`);
+    // Small delay to ensure file is fully written
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Check if file exists
-    try {
-      await fs.access(outputPath);
-    } catch {
-      // List directory to see what files were created
-      const files = await fs.readdir(outputDir);
-      console.log('Files in output dir:', files);
-      return errorResponse('Conversion failed - output file not created', 500);
+    // List directory to see what was created
+    const files = await fs.readdir(outputDir);
+    console.log('Files in output dir:', files);
+
+    // Find the .docx file that was created
+    const docxFile = files.find(f => f.endsWith('.docx') && f.includes(baseName));
+    if (docxFile) {
+      outputPath = path.join(outputDir, docxFile);
+      console.log('Found docx file:', outputPath);
+    } else {
+      // Fallback: find any .docx file
+      const anyDocx = files.find(f => f.endsWith('.docx'));
+      if (anyDocx) {
+        outputPath = path.join(outputDir, anyDocx);
+        console.log('Found fallback docx file:', outputPath);
+      } else {
+        return errorResponse('Conversion failed - no DOCX file created', 500);
+      }
     }
+
+    // Verify file exists and is readable
+    const stats = await fs.stat(outputPath);
+    console.log('Output file size:', stats.size);
 
     const buffer = await readFileAsBuffer(outputPath);
     const outputFilename = file.name.replace(/\.pdf$/i, '.docx');
@@ -90,11 +110,14 @@ export async function POST(request: NextRequest) {
       response.headers.set(key, value);
     });
 
+    // Cleanup AFTER reading buffer into memory
+    await cleanupFiles(inputPath, outputPath);
+
     return response;
   } catch (error) {
     console.error('PDF to Word conversion error:', error);
-    return errorResponse('Conversion failed. Please try again.', 500);
-  } finally {
+    // Cleanup on error too
     await cleanupFiles(inputPath, outputPath);
+    return errorResponse('Conversion failed. Please try again.', 500);
   }
 }

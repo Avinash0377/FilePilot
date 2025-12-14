@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
@@ -8,7 +8,16 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#1e293b",
+}
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://filepilot.online'),
   title: "FilePilot — Free File Converter | Convert PDF, Images, Video, Audio Instantly",
   description:
     "Convert files instantly with FilePilot. Free PDF converters, image tools, video converters, audio converters, archive tools, OCR, and more. Fast, secure, and no upload to servers.",
@@ -30,13 +39,6 @@ export const metadata: Metadata = {
       { url: '/favicon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
-  themeColor: "#1e293b",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -45,13 +47,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FilePilot — Free File Converter",
     description: "Convert PDF, images, audio, and video files instantly. Free, private, and secure — all processing happens locally.",
-    url: "http://134.209.147.41",
+    url: "https://filepilot.online",
     siteName: "FilePilot",
     images: [
       {
-        url: "http://134.209.147.41/opengraph-image",
+        url: "https://filepilot.online/opengraph-image",
         width: 1200,
-        height: 630
+        height: 630,
+        alt: "FilePilot - Free File Converter"
       }
     ],
     locale: "en_US",
@@ -61,11 +64,21 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FilePilot — Free File Converter",
     description: "Fast and secure conversion tools for PDF, images, videos, audio, and more.",
-    images: ["http://134.209.147.41/opengraph-image"]
+    images: ["https://filepilot.online/opengraph-image"]
+  },
+  alternates: {
+    canonical: "https://filepilot.online",
   },
   robots: {
     index: true,
-    follow: true
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   }
 };
 
@@ -74,12 +87,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const canonical = "http://134.209.147.41";
-
   return (
     <html lang="en">
       <head>
-        <link rel="canonical" href={canonical} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
@@ -88,8 +98,9 @@ export default function RootLayout({
             "operatingSystem": "All",
             "applicationCategory": "Utility",
             "description": "Free online file converter with 18+ tools for PDF, images, video, audio, text, and archives.",
-            "url": "http://134.209.147.41",
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+            "url": "https://filepilot.online",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "image": "https://filepilot.online/opengraph-image"
           })
         }} />
       </head>

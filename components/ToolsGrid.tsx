@@ -127,7 +127,7 @@ export default function ToolsGrid() {
 
                     {/* Category Name */}
                     <div className="flex-1">
-                      <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+                      <h2 className={`text-2xl sm:text-3xl font-semibold ${category.id === 'pdf' ? 'text-green-600' : 'text-slate-900'}`}>
                         {category.name}
                       </h2>
                       <p className="text-sm text-slate-500 mt-0.5">

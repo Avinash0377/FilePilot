@@ -75,10 +75,11 @@ export async function readFileAsBuffer(filePath: string): Promise<Buffer> {
   return fs.readFile(filePath);
 }
 
-// Sanitize filename
+// Sanitize filename - more lenient to preserve readability
 export function sanitizeFilename(filename: string): string {
   return filename
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    // Only remove truly dangerous characters (path separators, control chars)
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
     .substring(0, 255);
 }
 
@@ -170,6 +171,8 @@ export function fileResponse(
       'Content-Type': contentType,
       'Content-Disposition': `attachment; filename="${sanitizeFilename(filename)}"`,
       'Content-Length': buffer.length.toString(),
+      'Access-Control-Expose-Headers': 'Content-Disposition',
     },
   });
 }
+

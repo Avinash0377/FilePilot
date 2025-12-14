@@ -53,14 +53,14 @@ export default function PdfToWordPage() {
 
         const response = await uploadFile('/api/pdf-to-word', formData);
 
-        setStatus('converting');
-        setMessage(`Converting ${file.name}...`);
-        resetProgress();
-
         if (!response.ok) {
           const error = await response.json();
           throw new Error(`Failed to convert ${file.name}: ${error.error || 'Conversion failed'}`);
         }
+
+        setStatus('converting');
+        setMessage(`Processing ${file.name}... Please wait.`);
+        // Don't reset progress - keep upload progress visible
 
         const blob = await response.blob();
 
@@ -68,10 +68,33 @@ export default function PdfToWordPage() {
         const contentDisposition = response.headers.get('Content-Disposition');
         let filename = file.name.replace(/\.pdf$/i, '.docx');
         if (contentDisposition) {
-          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (filenameMatch && filenameMatch[1]) {
-            filename = filenameMatch[1].replace(/['"]/g, '');
+          // Try multiple patterns to extract filename
+          // Pattern 1: filename*=UTF-8''<encoded-name> (RFC 5987)
+          let match = contentDisposition.match(/filename\*=(?:UTF-8''|utf-8'')([^;\n]+)/i);
+          if (match && match[1]) {
+            try {
+              filename = decodeURIComponent(match[1].trim());
+            } catch {
+              filename = match[1].trim();
+            }
+          } else {
+            // Pattern 2: filename="<name>" (quoted)
+            match = contentDisposition.match(/filename="([^"]+)"/i);
+            if (match && match[1]) {
+              filename = match[1].trim();
+            } else {
+              // Pattern 3: filename=<name> (unquoted)
+              match = contentDisposition.match(/filename=([^;\s\n]+)/i);
+              if (match && match[1]) {
+                filename = match[1].trim().replace(/^["']|["']$/g, '');
+              }
+            }
           }
+        }
+
+        // Ensure filename has .docx extension
+        if (!filename.toLowerCase().endsWith('.docx')) {
+          filename = file.name.replace(/\.pdf$/i, '.docx');
         }
 
         convertedResults.push({ blob, filename });

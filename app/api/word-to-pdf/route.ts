@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import * as path from 'path';
+import * as fs from 'fs/promises';
 import {
   saveUploadedFile,
   cleanupFiles,
@@ -10,6 +11,7 @@ import {
   validateFileTypeAndContent,
   validateFileSize,
   execAsync,
+  TMP_DIR,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
 
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
     inputPath = await saveUploadedFile(file);
     const outputDir = path.dirname(inputPath);
 
-    // Convert DOCX to PDF using LibreOffice
+    // Convert DOCX to PDF using LibreOffice (simple command)
     await execAsync(`libreoffice --headless --convert-to pdf --outdir "${outputDir}" "${inputPath}"`);
 
     // Get the output filename

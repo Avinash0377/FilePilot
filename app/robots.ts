@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'http://134.209.147.41/sitemap.xml',
+        sitemap: 'https://filepilot.online/sitemap.xml',
     };
 }
