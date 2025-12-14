@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Icons, toolIconMap } from './Icons';
 import SimilarTools from './SimilarTools';
+import { tools } from '@/lib/tools';
 
 interface ToolLayoutProps {
   title: string;
@@ -12,29 +13,44 @@ interface ToolLayoutProps {
   toolId?: string;
 }
 
+// Category color mappings
+const categoryColors: Record<string, { bg: string; text: string }> = {
+  pdf: { bg: 'from-red-100 to-red-200', text: 'text-red-600' },
+  image: { bg: 'from-indigo-100 to-indigo-200', text: 'text-indigo-600' },
+  text: { bg: 'from-blue-100 to-blue-200', text: 'text-blue-600' },
+  video: { bg: 'from-pink-100 to-pink-200', text: 'text-pink-600' },
+  audio: { bg: 'from-amber-100 to-amber-200', text: 'text-amber-600' },
+  archive: { bg: 'from-teal-100 to-teal-200', text: 'text-teal-600' },
+};
+
 export default function ToolLayout({ title, description, children, toolId }: ToolLayoutProps) {
   // Get SVG icon based on toolId or derive from title
   const derivedToolId = toolId || title.toLowerCase().replace(/\s+/g, '-');
   const iconKey = toolIconMap[derivedToolId] || null;
   const IconComponent = iconKey ? Icons[iconKey] : null;
 
+  // Get category for this tool
+  const tool = tools.find(t => t.id === derivedToolId);
+  const category = tool?.category || 'pdf';
+  const colors = categoryColors[category] || categoryColors.pdf;
+
   return (
     <div className="min-h-[calc(100vh-200px)] bg-slate-50 bg-gradient-mesh">
-      {/* Header with glassmorphism - Mobile Optimized */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-slate-100 py-4 sm:py-6 md:py-8 sticky top-16 z-10">
+      {/* Header - NOT sticky, scrolls with page */}
+      <div className="bg-white/80 backdrop-blur-lg border-b border-slate-100 py-4 sm:py-6 md:py-8">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb - Mobile Optimized */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm sm:text-base text-slate-500 hover:text-emerald-600 transition-colors mb-3 sm:mb-4 group min-h-[44px] touch-manipulation active:scale-95"
+            className="inline-flex items-center gap-2 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition-colors mb-3 sm:mb-4 group min-h-[44px] touch-manipulation active:scale-95"
           >
             <Icons.ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Back to tools</span>
           </Link>
 
-          {/* Title - Mobile Optimized */}
+          {/* Title with category color */}
           <div className="flex items-center gap-3 sm:gap-4 fade-up">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl sm:rounded-2xl flex items-center justify-center text-emerald-600 shadow-soft icon-pulse flex-shrink-0">
+            <div className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${colors.bg} rounded-xl sm:rounded-2xl flex items-center justify-center ${colors.text} shadow-soft icon-pulse flex-shrink-0`}>
               {IconComponent ? (
                 <IconComponent className="w-6 h-6 sm:w-7 sm:h-7" />
               ) : (
