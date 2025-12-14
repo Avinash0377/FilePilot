@@ -13,12 +13,16 @@ import {
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs, getClientIp } from '@/lib/rateLimit';
 import conversionQueue from '@/lib/conversionQueue';
 import { randomUUID } from 'crypto';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   const rateLimit = await checkRateLimit(request, rateLimitConfigs.conversion);
   if (!rateLimit.allowed) {
     return rateLimitResponse(rateLimit.reset);
   }
+
+  const startTime = Date.now();
+  let trackingId = '';
 
   try {
     const formData = await request.formData();
@@ -27,23 +31,27 @@ export async function POST(request: NextRequest) {
     const jobId = formData.get('jobId') as string | null;
 
     if (!file) {
+      trackingId = trackConversionStart('video-compressor');
+      trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, 0, 'No file');
       return errorResponse('No file provided');
     }
 
     if (!validateFileSize(file.size)) {
+      trackingId = trackConversionStart('video-compressor');
+      trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, file.size, 'File too large');
       return errorResponse('File size exceeds 50MB limit');
     }
 
-    // Validate file type and content
     const validation = await validateFileTypeAndContent(file, ['mp4', 'webm', 'avi', 'mov']);
     if (!validation.valid) {
+      trackingId = trackConversionStart('video-compressor');
+      trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, file.size, 'Invalid file');
       return errorResponse(validation.error || 'Invalid file');
     }
 
     const userId = getClientIp(request);
     const currentJobId = jobId || randomUUID();
 
-    // If no jobId provided, add to queue
     if (!jobId) {
       const queueResult = conversionQueue.addJob(currentJobId, 'video-compress', userId);
 
@@ -51,7 +59,6 @@ export async function POST(request: NextRequest) {
         return errorResponse(queueResult.error || 'Failed to add to queue', 503);
       }
 
-      // Return job ID and queue position
       return new Response(
         JSON.stringify({
           jobId: currentJobId,
@@ -60,7 +67,7 @@ export async function POST(request: NextRequest) {
           message: 'Added to compression queue',
         }),
         {
-          status: 202, // Accepted
+          status: 202,
           headers: {
             'Content-Type': 'application/json',
             ...createRateLimitHeaders(rateLimit.limit, rateLimit.remaining, rateLimit.reset),
@@ -69,33 +76,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if job can be processed
     if (!conversionQueue.canProcess(currentJobId)) {
       return errorResponse('Job not ready for processing', 425);
     }
 
-    // Process the video compression
+    // Start tracking when processing begins
+    trackingId = trackConversionStart('video-compressor');
     let inputPath = '';
     let outputPath = '';
 
     try {
-      // CRF: 0 (lossless) to 51 (worst), 23 is default, 28 is reasonable for compression
       const crfValue = parseInt(crf || '28', 10);
       if (isNaN(crfValue) || crfValue < 0 || crfValue > 51) {
         conversionQueue.completeJob(currentJobId, 'Invalid CRF value');
+        trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, file.size, 'Invalid CRF');
         return errorResponse('CRF must be between 0 and 51');
       }
 
       inputPath = await saveUploadedFile(file);
       outputPath = generateTmpPath('.mp4');
 
-      // Compress video using FFmpeg with CRF
       await execAsync(`ffmpeg -i "${inputPath}" -vcodec libx264 -crf ${crfValue} -y "${outputPath}"`);
 
       const buffer = await readFileAsBuffer(outputPath);
       const outputFilename = file.name.replace(/\.(mp4|webm|avi|mov)$/i, '-compressed.mp4');
 
-      // Mark job as completed
       conversionQueue.completeJob(currentJobId);
 
       const response = fileResponse(buffer, outputFilename, 'video/mp4');
@@ -105,16 +110,21 @@ export async function POST(request: NextRequest) {
         response.headers.set(key, value);
       });
 
+      trackConversionEnd(trackingId, 'video-compressor', 'success', Date.now() - startTime, file.size);
+      await cleanupFiles(inputPath, outputPath);
       return response;
     } catch (error) {
       console.error('Video compression error:', error);
       conversionQueue.completeJob(currentJobId, 'Compression failed');
-      return errorResponse('Compression failed. Please try again.', 500);
-    } finally {
+      trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, file?.size || 0, 'Compression failed');
       await cleanupFiles(inputPath, outputPath);
+      return errorResponse('Compression failed. Please try again.', 500);
     }
   } catch (error) {
     console.error('Video compression error:', error);
+    if (trackingId) {
+      trackConversionEnd(trackingId, 'video-compressor', 'error', Date.now() - startTime, 0, 'Compression failed');
+    }
     return errorResponse('Compression failed. Please try again.', 500);
   }
 }

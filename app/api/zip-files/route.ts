@@ -11,32 +11,36 @@ import {
 } from '@/lib/fileUtils';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   const inputPaths: string[] = [];
   let outputPath = '';
   let tempDir = '';
-  
+  const startTime = Date.now();
+  const trackingId = trackConversionStart('zip-files');
+
   try {
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
-    
+
     if (!files || files.length === 0) {
+      trackConversionEnd(trackingId, 'zip-files', 'error', Date.now() - startTime, 0, 'No files');
       return errorResponse('No files provided');
     }
-    
-    // Validate all files
+
+    let totalSize = 0;
     for (const file of files) {
       if (!validateFileSize(file.size)) {
+        trackConversionEnd(trackingId, 'zip-files', 'error', Date.now() - startTime, totalSize, 'File too large');
         return errorResponse(`File "${file.name}" exceeds 50MB limit`);
       }
+      totalSize += file.size;
     }
-    
-    // Create a temporary directory for the files
+
     tempDir = generateTmpPath('_zipdir');
     await fs.mkdir(tempDir, { recursive: true });
-    
-    // Save files with their original names in the temp directory
+
     for (const file of files) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -44,35 +48,32 @@ export async function POST(request: NextRequest) {
       await fs.writeFile(filePath, buffer);
       inputPaths.push(filePath);
     }
-    
+
     outputPath = generateTmpPath('.zip');
-    
-    // Create ZIP using zip command - zip all files in the directory
-    // Using -r to recurse and -j to junk (not record) directory names
+
     const fileNames = files.map(f => `"${f.name}"`).join(' ');
     await execAsync(`cd "${tempDir}" && zip -j "${outputPath}" ${fileNames}`);
-    
-    // Verify the zip file was created and has content
+
     const stats = await fs.stat(outputPath);
     if (stats.size === 0) {
       throw new Error('ZIP file is empty');
     }
-    
+
     const buffer = await readFileAsBuffer(outputPath);
-    
+
+    trackConversionEnd(trackingId, 'zip-files', 'success', Date.now() - startTime, totalSize);
+    await cleanupFiles(...inputPaths, outputPath);
+    if (tempDir) {
+      try { await fs.rm(tempDir, { recursive: true, force: true }); } catch (e) { }
+    }
     return fileResponse(buffer, 'archive.zip', 'application/zip');
   } catch (error) {
     console.error('ZIP error:', error);
-    return errorResponse('ZIP creation failed. Please try again.', 500);
-  } finally {
+    trackConversionEnd(trackingId, 'zip-files', 'error', Date.now() - startTime, 0, 'ZIP failed');
     await cleanupFiles(...inputPaths, outputPath);
-    // Clean up temp directory
     if (tempDir) {
-      try {
-        await fs.rm(tempDir, { recursive: true, force: true });
-      } catch (e) {
-        // Ignore cleanup errors
-      }
+      try { await fs.rm(tempDir, { recursive: true, force: true }); } catch (e) { }
     }
+    return errorResponse('ZIP creation failed. Please try again.', 500);
   }
 }

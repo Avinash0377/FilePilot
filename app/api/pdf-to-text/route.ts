@@ -5,53 +5,55 @@ import {
   saveUploadedFile,
   cleanupFiles,
   errorResponse,
-  validateFileType,
   validateFileTypeAndContent,
   validateFileSize,
   execAsync,
   generateTmpPath,
 } from '@/lib/fileUtils';
 import { checkRateLimit, createRateLimitHeaders, rateLimitResponse, rateLimitConfigs } from '@/lib/rateLimit';
+import { trackConversionStart, trackConversionEnd } from '@/lib/stats';
 
 export async function POST(request: NextRequest) {
   const rateLimit = await checkRateLimit(request, rateLimitConfigs.conversion);
   if (!rateLimit.allowed) {
     return rateLimitResponse(rateLimit.reset);
   }
-  
+
   let inputPath = '';
   let outputPath = '';
-  
+  const startTime = Date.now();
+  const trackingId = trackConversionStart('pdf-to-text');
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    
+
     if (!file) {
+      trackConversionEnd(trackingId, 'pdf-to-text', 'error', Date.now() - startTime, 0, 'No file');
       return errorResponse('No file provided');
     }
-    
+
     if (!validateFileSize(file.size)) {
+      trackConversionEnd(trackingId, 'pdf-to-text', 'error', Date.now() - startTime, file.size, 'File too large');
       return errorResponse('File size exceeds 50MB limit');
     }
 
-    // Validate file type and content
     const validation = await validateFileTypeAndContent(file, ['.pdf']);
     if (!validation.valid) {
+      trackConversionEnd(trackingId, 'pdf-to-text', 'error', Date.now() - startTime, file.size, 'Invalid file');
       return errorResponse(validation.error || 'Invalid file');
     }
-    
-    
-    
+
     inputPath = await saveUploadedFile(file);
     outputPath = generateTmpPath('.txt');
-    
-    // Extract text using pdftotext
+
     await execAsync(`pdftotext "${inputPath}" "${outputPath}"`);
-    
-    // Read the output text file
+
     const textContent = await fs.readFile(outputPath, 'utf-8');
-    
-    // Return as plain text
+
+    trackConversionEnd(trackingId, 'pdf-to-text', 'success', Date.now() - startTime, file.size);
+    await cleanupFiles(inputPath, outputPath);
+
     return new Response(textContent, {
       status: 200,
       headers: {
@@ -61,8 +63,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('PDF to Text error:', error);
-    return errorResponse('Conversion failed. Please try again.', 500);
-  } finally {
+    trackConversionEnd(trackingId, 'pdf-to-text', 'error', Date.now() - startTime, 0, 'Conversion failed');
     await cleanupFiles(inputPath, outputPath);
+    return errorResponse('Conversion failed. Please try again.', 500);
   }
 }
