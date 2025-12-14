@@ -3,30 +3,37 @@ import { tools } from '@/lib/tools';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://filepilot.online';
+    const currentDate = new Date();
 
-    // Homepage
-    const routes: MetadataRoute.Sitemap = [
+    // Static pages
+    const staticRoutes: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
+            lastModified: currentDate,
+            changeFrequency: 'daily',
             priority: 1.0,
         },
         {
-            url: `${baseUrl}/privacy`,
-            lastModified: new Date(),
+            url: `${baseUrl}/contact`,
+            lastModified: currentDate,
             changeFrequency: 'monthly',
-            priority: 0.5,
+            priority: 0.7,
+        },
+        {
+            url: `${baseUrl}/privacy`,
+            lastModified: currentDate,
+            changeFrequency: 'yearly',
+            priority: 0.3,
         },
     ];
 
-    // Tool pages
+    // Tool pages - high priority for SEO
     const toolRoutes: MetadataRoute.Sitemap = tools.map((tool) => ({
         url: `${baseUrl}${tool.href}`,
-        lastModified: new Date(),
+        lastModified: currentDate,
         changeFrequency: 'weekly' as const,
-        priority: 0.8,
+        priority: 0.9, // Increased priority for tool pages
     }));
 
-    return [...routes, ...toolRoutes];
+    return [...staticRoutes, ...toolRoutes];
 }

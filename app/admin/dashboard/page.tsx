@@ -8,12 +8,10 @@ import ToolUsageChart from '@/components/admin/ToolUsageChart';
 import LogStream from '@/components/admin/LogStream';
 import AlertsPanel from '@/components/admin/AlertsPanel';
 import {
-    Users,
     FileCheck,
     TrendingUp,
     CheckCircle2,
     XCircle,
-    Clock,
     Cpu,
     HardDrive,
     RefreshCw,
@@ -130,7 +128,7 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-screen">
+            <div className="p-4 sm:p-8 flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <RefreshCw className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-4" />
                     <p className="text-gray-600">Loading dashboard...</p>
@@ -141,12 +139,12 @@ export default function DashboardPage() {
 
     if (error) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-screen">
+            <div className="p-4 sm:p-8 flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <p className="text-red-600 mb-4">{error}</p>
                     <button
                         onClick={() => fetchStats()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 min-h-[48px] touch-manipulation active:scale-95"
                     >
                         Retry
                     </button>
@@ -156,35 +154,41 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="p-8">
-            {/* Header */}
-            <div className="mb-8 flex items-center justify-between">
+        <div className="p-4 sm:p-6 lg:p-8">
+            {/* Header - Mobile Optimized */}
+            <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#1e1e1e]">Dashboard</h1>
-                    <p className="text-gray-600 mt-1">Real-time system statistics and monitoring</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-[#1e1e1e]">Dashboard</h1>
+                    <p className="text-sm sm:text-base text-gray-600 mt-1">Real-time system statistics</p>
                 </div>
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 min-h-[48px] font-medium touch-manipulation active:scale-95 w-full sm:w-auto"
                 >
-                    <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
                     Refresh
                 </button>
             </div>
 
-            {/* Live Status */}
-            <div className="mb-6 flex items-center gap-2 text-sm">
-                <Activity className="w-4 h-4 text-green-500" />
-                <span className="text-gray-600">Server uptime:</span>
-                <span className="font-medium">{formatUptime(stats?.uptime || 0)}</span>
-                <span className="mx-2 text-gray-300">|</span>
-                <span className="text-gray-600">Active conversions:</span>
-                <span className="font-medium text-blue-600">{stats?.conversions.active || 0}</span>
+            {/* Live Status - Mobile Optimized */}
+            <div className="mb-6 p-3 sm:p-4 bg-white rounded-xl border border-gray-200">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-green-500" />
+                        <span className="text-gray-600">Uptime:</span>
+                        <span className="font-semibold">{formatUptime(stats?.uptime || 0)}</span>
+                    </div>
+                    <div className="hidden sm:block text-gray-300">|</div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-gray-600">Active:</span>
+                        <span className="font-semibold text-blue-600">{stats?.conversions.active || 0}</span>
+                    </div>
+                </div>
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Metrics Grid - Mobile: 2 cols, Tablet: 3 cols */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
                 <MetricCard
                     title="Total Conversions"
                     value={stats?.conversions.total.toLocaleString() || '0'}
@@ -194,7 +198,7 @@ export default function DashboardPage() {
                     title="Successful"
                     value={stats?.conversions.success.toLocaleString() || '0'}
                     icon={CheckCircle2}
-                    trend={`${stats?.conversions.successRate || 100}% success rate`}
+                    trend={`${stats?.conversions.successRate || 100}%`}
                 />
                 <MetricCard
                     title="Failed"
@@ -220,9 +224,9 @@ export default function DashboardPage() {
                 />
             </div>
 
-            {/* Charts Row */}
+            {/* Charts Row - Stack on Mobile */}
             {trendData.length > 0 && toolUsageData.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
                     <TrendChart data={trendData} />
                     <ToolUsageChart data={toolUsageData} />
                 </div>
@@ -230,15 +234,15 @@ export default function DashboardPage() {
 
             {/* No data message */}
             {trendData.length === 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-8 mb-8 text-center">
-                    <FileCheck className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No conversion data yet</h3>
-                    <p className="text-gray-600">Charts will appear once users start converting files.</p>
+                <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 mb-6 sm:mb-8 text-center">
+                    <FileCheck className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No conversion data yet</h3>
+                    <p className="text-sm sm:text-base text-gray-600">Charts will appear once users start converting files.</p>
                 </div>
             )}
 
-            {/* Logs and Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Logs and Alerts - Stack on Mobile */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <LogStream logs={logEntries} />
                 <AlertsPanel alerts={alerts} />
             </div>

@@ -26,8 +26,8 @@ export default function Footer() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <a href="mailto:contact@filepilot.online" className="hover:text-brand-400 transition-colors">
-                contact@filepilot.online
+              <a href="mailto:sudhimallaavinash07@gmail.com" className="hover:text-brand-400 transition-colors">
+                sudhimallaavinash07@gmail.com
               </a>
             </div>
           </div>
@@ -93,9 +93,18 @@ export default function Footer() {
 
           {/* Owner Signature */}
           <div className="mt-8 pt-6 border-t border-slate-700/30 text-center">
-            <p className="text-slate-500 text-sm font-serif italic tracking-wide">
+            <p className="text-slate-500 text-sm font-serif italic tracking-wide mb-2">
               Done & Dusted by <span className="text-brand-400 font-semibold">Avinash Sudimalla</span>
             </p>
+            <a
+              href="mailto:sudhimallaavinash07@gmail.com"
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-brand-400 transition-colors text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Mail me at sudhimallaavinash07@gmail.com
+            </a>
           </div>
         </div>
       </div>

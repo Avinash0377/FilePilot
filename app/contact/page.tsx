@@ -40,10 +40,10 @@ export default function ContactPage() {
                                 Drop us a line anytime. We usually respond within 24 hours.
                             </p>
                             <a
-                                href="mailto:contact@filepilot.online"
+                                href="mailto:sudhimallaavinash07@gmail.com"
                                 className="inline-flex items-center gap-2 text-brand-600 font-semibold hover:text-brand-700 transition-colors group-hover:translate-x-1 duration-200"
                             >
-                                contact@filepilot.online
+                                sudhimallaavinash07@gmail.com
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>
@@ -62,10 +62,10 @@ export default function ContactPage() {
                                 Found a bug? Let us know and we&apos;ll squash it immediately.
                             </p>
                             <a
-                                href="mailto:support@filepilot.online"
+                                href="mailto:sudhimallaavinash07@gmail.com"
                                 className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors group-hover:translate-x-1 duration-200"
                             >
-                                support@filepilot.online
+                                sudhimallaavinash07@gmail.com
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>

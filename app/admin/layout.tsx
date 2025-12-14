@@ -13,7 +13,8 @@ export default function AdminLayout({
     return (
         <div className="flex h-screen bg-[#f8f9fb]">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto">
+            {/* Main content - add top padding on mobile for header bar */}
+            <main className="flex-1 overflow-y-auto pt-16 lg:pt-0">
                 {children}
             </main>
         </div>

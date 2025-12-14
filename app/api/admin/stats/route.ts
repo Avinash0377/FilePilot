@@ -5,11 +5,11 @@ import { cookies } from 'next/headers';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    // Check admin cookie
+    // Check admin session cookie (validated by middleware, but double-check)
     const cookieStore = await cookies();
-    const adminCookie = cookieStore.get('admin');
+    const sessionCookie = cookieStore.get('admin_session');
 
-    if (!adminCookie || adminCookie.value !== '1') {
+    if (!sessionCookie || !sessionCookie.value) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -19,11 +19,11 @@ export async function GET() {
 }
 
 export async function DELETE() {
-    // Check admin cookie
+    // Check admin session cookie
     const cookieStore = await cookies();
-    const adminCookie = cookieStore.get('admin');
+    const sessionCookie = cookieStore.get('admin_session');
 
-    if (!adminCookie || adminCookie.value !== '1') {
+    if (!sessionCookie || !sessionCookie.value) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
