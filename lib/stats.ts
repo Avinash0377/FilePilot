@@ -1,5 +1,7 @@
 // Comprehensive stats tracking for admin dashboard
-// Persists in memory (resets on server restart)
+// Persists to MongoDB for data survival across restarts
+
+import { getStatsCollection, getLogsCollection } from './mongodb';
 
 interface ConversionRecord {
     id: string;
@@ -24,45 +26,102 @@ interface Stats {
     successCount: number;
     errorCount: number;
     startTime: number;
-    recentActivity: ConversionRecord[];
     toolUsage: Record<string, { success: number; error: number }>;
     dailyStats: DailyStats[];
 }
 
-// Global scope to persist across hot-reloads in dev
-const globalForStats = global as unknown as { appStats: Stats };
+interface StatsDocument {
+    docId: string;
+    totalConversions: number;
+    successCount: number;
+    errorCount: number;
+    toolUsage: Record<string, { success: number; error: number }>;
+    dailyStats: Record<string, { success: number; failed: number; totalSize: number }>;
+}
 
 const getToday = () => new Date().toISOString().split('T')[0];
 
-export const stats: Stats = globalForStats.appStats || {
-    activeConversions: 0,
-    totalConversions: 0,
-    successCount: 0,
-    errorCount: 0,
-    startTime: Date.now(),
-    recentActivity: [],
-    toolUsage: {},
-    dailyStats: []
-};
+// In-memory cache for active conversions (resets on restart, that's ok)
+let activeConversions = 0;
+let startTime = Date.now();
 
-if (process.env.NODE_ENV !== 'production') globalForStats.appStats = stats;
+// Cache for stats to reduce DB reads
+let statsCache: Stats | null = null;
+let lastCacheUpdate = 0;
+const CACHE_TTL = 30000; // 30 seconds
+
+const STATS_DOC_ID = 'global_stats';
+
+// Initialize or get stats from MongoDB
+async function getStats(): Promise<Stats> {
+    // Return cache if fresh
+    if (statsCache && Date.now() - lastCacheUpdate < CACHE_TTL) {
+        return statsCache;
+    }
+
+    try {
+        const collection = await getStatsCollection();
+        const doc = await collection.findOne({ docId: STATS_DOC_ID });
+
+        if (!doc) {
+            // Initialize stats document
+            const initialDoc: StatsDocument = {
+                docId: STATS_DOC_ID,
+                totalConversions: 0,
+                successCount: 0,
+                errorCount: 0,
+                toolUsage: {},
+                dailyStats: {}
+            };
+            await collection.insertOne(initialDoc);
+
+            statsCache = {
+                activeConversions,
+                totalConversions: 0,
+                successCount: 0,
+                errorCount: 0,
+                startTime,
+                toolUsage: {},
+                dailyStats: []
+            };
+        } else {
+            statsCache = {
+                activeConversions,
+                totalConversions: doc.totalConversions || 0,
+                successCount: doc.successCount || 0,
+                errorCount: doc.errorCount || 0,
+                startTime,
+                toolUsage: doc.toolUsage || {},
+                dailyStats: []
+            };
+        }
+
+        lastCacheUpdate = Date.now();
+        return statsCache;
+    } catch (error) {
+        console.error('[Stats] Failed to get stats from MongoDB:', error);
+        // Return default stats on error
+        return {
+            activeConversions,
+            totalConversions: 0,
+            successCount: 0,
+            errorCount: 0,
+            startTime,
+            toolUsage: {},
+            dailyStats: []
+        };
+    }
+}
 
 export function trackConversionStart(tool: string): string {
     const id = Math.random().toString(36).substring(7);
-    stats.activeConversions++;
-    stats.totalConversions++;
+    activeConversions++;
 
-    stats.recentActivity.unshift({
-        id,
-        tool,
-        status: 'processing',
-        timestamp: Date.now()
-    });
+    // Log to MongoDB (fire and forget)
+    logConversion(id, tool, 'processing');
 
-    // Keep log size manageable
-    if (stats.recentActivity.length > 100) {
-        stats.recentActivity.pop();
-    }
+    // Update total count in background
+    updateStatsAsync('start');
 
     return id;
 }
@@ -75,69 +134,187 @@ export function trackConversionEnd(
     fileSize?: number,
     errorMessage?: string
 ) {
-    stats.activeConversions = Math.max(0, stats.activeConversions - 1);
+    activeConversions = Math.max(0, activeConversions - 1);
 
-    if (status === 'success') {
-        stats.successCount++;
-    } else {
-        stats.errorCount++;
-    }
+    // Update log entry
+    updateLogEntry(id, status, duration, fileSize, errorMessage);
 
-    // Update the record
-    const record = stats.recentActivity.find(r => r.id === id);
-    if (record) {
-        record.status = status;
-        record.duration = duration;
-        record.fileSize = fileSize;
-        record.errorMessage = errorMessage;
-    }
+    // Update stats in background
+    updateStatsAsync('end', tool, status, fileSize);
+}
 
-    // Update tool usage
-    if (!stats.toolUsage[tool]) {
-        stats.toolUsage[tool] = { success: 0, error: 0 };
-    }
-    stats.toolUsage[tool][status]++;
-
-    // Update daily stats
-    const today = getToday();
-    let todayStats = stats.dailyStats.find(d => d.date === today);
-    if (!todayStats) {
-        todayStats = { date: today, success: 0, failed: 0, totalSize: 0 };
-        stats.dailyStats.unshift(todayStats);
-        // Keep only last 30 days
-        if (stats.dailyStats.length > 30) {
-            stats.dailyStats.pop();
-        }
-    }
-    if (status === 'success') {
-        todayStats.success++;
-        todayStats.totalSize += fileSize || 0;
-    } else {
-        todayStats.failed++;
+// Fire-and-forget log entry
+async function logConversion(id: string, tool: string, status: string) {
+    try {
+        const collection = await getLogsCollection();
+        await collection.insertOne({
+            logId: id,
+            tool,
+            status,
+            timestamp: Date.now()
+        });
+    } catch (error) {
+        console.error('[Stats] Failed to log conversion:', error);
     }
 }
 
-export function getSystemStats() {
+// Update log entry when conversion completes
+async function updateLogEntry(
+    id: string,
+    status: string,
+    duration?: number,
+    fileSize?: number,
+    errorMessage?: string
+) {
+    try {
+        const collection = await getLogsCollection();
+        await collection.updateOne(
+            { logId: id },
+            {
+                $set: {
+                    status,
+                    duration,
+                    fileSize,
+                    errorMessage,
+                    completedAt: Date.now()
+                }
+            }
+        );
+    } catch (error) {
+        console.error('[Stats] Failed to update log entry:', error);
+    }
+}
+
+// Update stats in MongoDB
+async function updateStatsAsync(
+    type: 'start' | 'end',
+    tool?: string,
+    status?: 'success' | 'error',
+    fileSize?: number
+) {
+    try {
+        const collection = await getStatsCollection();
+        const today = getToday();
+
+        if (type === 'start') {
+            await collection.updateOne(
+                { docId: STATS_DOC_ID },
+                { $inc: { totalConversions: 1 } },
+                { upsert: true }
+            );
+        } else if (type === 'end' && tool && status) {
+            // Clean tool name for MongoDB field (replace dots with underscores)
+            const cleanTool = tool.replace(/\./g, '_');
+
+            const updates: Record<string, number> = {};
+
+            if (status === 'success') {
+                updates.successCount = 1;
+                updates[`toolUsage.${cleanTool}.success`] = 1;
+            } else {
+                updates.errorCount = 1;
+                updates[`toolUsage.${cleanTool}.error`] = 1;
+            }
+
+            await collection.updateOne(
+                { docId: STATS_DOC_ID },
+                { $inc: updates },
+                { upsert: true }
+            );
+
+            // Update daily stats
+            await collection.updateOne(
+                { docId: STATS_DOC_ID },
+                {
+                    $inc: {
+                        [`dailyStats.${today}.${status === 'success' ? 'success' : 'failed'}`]: 1,
+                        [`dailyStats.${today}.totalSize`]: fileSize || 0
+                    }
+                }
+            );
+        }
+
+        // Invalidate cache
+        statsCache = null;
+    } catch (error) {
+        console.error('[Stats] Failed to update stats:', error);
+    }
+}
+
+export async function getSystemStats() {
+    const stats = await getStats();
     const memory = process.memoryUsage();
-    const uptime = Math.floor((Date.now() - stats.startTime) / 1000);
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
 
     // Calculate success rate
     const total = stats.successCount + stats.errorCount;
     const successRate = total > 0 ? Math.round((stats.successCount / total) * 100) : 100;
 
     // Get tool usage sorted by total usage
-    const toolUsageArray = Object.entries(stats.toolUsage)
+    const toolUsageArray = Object.entries(stats.toolUsage || {})
         .map(([tool, counts]) => ({
             tool,
-            success: counts.success,
-            error: counts.error,
-            total: counts.success + counts.error
+            success: counts.success || 0,
+            error: counts.error || 0,
+            total: (counts.success || 0) + (counts.error || 0)
         }))
         .sort((a, b) => b.total - a.total)
         .slice(0, 10);
 
-    // Get last 7 days stats
-    const last7Days = stats.dailyStats.slice(0, 7).reverse();
+    // Get recent logs from MongoDB
+    let recentActivity: ConversionRecord[] = [];
+    try {
+        const logsCollection = await getLogsCollection();
+        const logs = await logsCollection
+            .find({})
+            .sort({ timestamp: -1 })
+            .limit(20)
+            .toArray();
+
+        recentActivity = logs.map(log => ({
+            id: log.logId || log.id,
+            tool: log.tool,
+            status: log.status,
+            timestamp: log.timestamp,
+            duration: log.duration,
+            fileSize: log.fileSize,
+            errorMessage: log.errorMessage
+        }));
+    } catch (error) {
+        console.error('[Stats] Failed to get recent logs:', error);
+    }
+
+    // Get last 7 days stats from MongoDB
+    let last7Days: Array<{ date: string; success: number; failed: number }> = [];
+    try {
+        const collection = await getStatsCollection();
+        const doc = await collection.findOne({ docId: STATS_DOC_ID });
+        const dailyStatsObj = doc?.dailyStats || {};
+
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            const dayStats = dailyStatsObj[dateStr] || { success: 0, failed: 0 };
+            last7Days.push({
+                date: dateStr,
+                success: dayStats.success || 0,
+                failed: dayStats.failed || 0
+            });
+        }
+    } catch (error) {
+        console.error('[Stats] Failed to get daily stats:', error);
+        // Fallback to empty array
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            last7Days.push({
+                date: date.toISOString().split('T')[0],
+                success: 0,
+                failed: 0
+            });
+        }
+    }
 
     return {
         uptime,
@@ -147,7 +324,7 @@ export function getSystemStats() {
             heapUsed: Math.round(memory.heapUsed / 1024 / 1024),
         },
         conversions: {
-            active: stats.activeConversions,
+            active: activeConversions,
             total: stats.totalConversions,
             success: stats.successCount,
             errors: stats.errorCount,
@@ -155,21 +332,38 @@ export function getSystemStats() {
         },
         toolUsage: toolUsageArray,
         dailyStats: last7Days,
-        recentActivity: stats.recentActivity.slice(0, 20)
+        recentActivity
     };
 }
 
-export function getRecentLogs(limit: number = 50) {
-    return stats.recentActivity.slice(0, limit);
+export async function getRecentLogs(limit: number = 50) {
+    try {
+        const collection = await getLogsCollection();
+        const logs = await collection
+            .find({})
+            .sort({ timestamp: -1 })
+            .limit(limit)
+            .toArray();
+        return logs;
+    } catch (error) {
+        console.error('[Stats] Failed to get logs:', error);
+        return [];
+    }
 }
 
-export function clearStats() {
-    stats.activeConversions = 0;
-    stats.totalConversions = 0;
-    stats.successCount = 0;
-    stats.errorCount = 0;
-    stats.startTime = Date.now();
-    stats.recentActivity = [];
-    stats.toolUsage = {};
-    stats.dailyStats = [];
+export async function clearStats() {
+    try {
+        const statsCollection = await getStatsCollection();
+        const logsCollection = await getLogsCollection();
+
+        await statsCollection.deleteMany({});
+        await logsCollection.deleteMany({});
+
+        statsCache = null;
+        startTime = Date.now();
+
+        console.log('[Stats] Stats cleared');
+    } catch (error) {
+        console.error('[Stats] Failed to clear stats:', error);
+    }
 }
