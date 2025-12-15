@@ -228,84 +228,40 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Visitor Stats Row */}
+            {/* Quick Visitor Stats */}
             {visitorStats && (
                 <div className="mb-6 sm:mb-8">
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Users className="w-5 h-5 text-purple-600" />
-                        Visitor Analytics
-                    </h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
-                        <MetricCard
-                            title="Today's Views"
-                            value={visitorStats.today.pageViews.toLocaleString()}
-                            icon={Eye}
-                        />
-                        <MetricCard
-                            title="Today's Visitors"
-                            value={visitorStats.today.uniqueVisitors.toLocaleString()}
-                            icon={Users}
-                        />
-                        <MetricCard
-                            title="All-Time Views"
-                            value={visitorStats.allTime.pageViews.toLocaleString()}
-                            icon={TrendingUp}
-                        />
-                        <MetricCard
-                            title="Total Visitors"
-                            value={visitorStats.allTime.uniqueVisitors.toLocaleString()}
-                            icon={Globe}
-                        />
-                    </div>
-
-                    {/* Top Countries & Recent Visitors */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Top Countries */}
-                        {visitorStats.topCountries.length > 0 && (
-                            <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-blue-600" />
-                                    Top Countries
-                                </h3>
-                                <div className="space-y-2">
-                                    {visitorStats.topCountries.slice(0, 5).map((c, i) => (
-                                        <div key={i} className="flex items-center justify-between text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-lg">{getFlag(c.countryCode)}</span>
-                                                <span className="text-gray-700">{c.country}</span>
-                                            </div>
-                                            <span className="font-medium text-gray-900">{c.views}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                    <div className="bg-white rounded-xl border border-gray-200 p-4">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                                <Users className="w-4 h-4 text-purple-600" />
+                                Visitors Today
+                            </h3>
+                            <a
+                                href="/admin/visitors"
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                                View Details →
+                            </a>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div>
+                                <p className="text-2xl font-bold text-gray-900">{visitorStats.today.pageViews}</p>
+                                <p className="text-xs text-gray-500">Page Views</p>
                             </div>
-                        )}
-
-                        {/* Recent Visitors */}
-                        {visitorStats.recentVisitors.length > 0 && (
-                            <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-green-600" />
-                                    Recent Visitors
-                                </h3>
-                                <div className="space-y-2 max-h-48 overflow-y-auto">
-                                    {visitorStats.recentVisitors.slice(0, 10).map((v, i) => (
-                                        <div key={i} className="flex items-center justify-between text-sm">
-                                            <div className="flex items-center gap-2 overflow-hidden">
-                                                <span>{getFlag(v.countryCode)}</span>
-                                                <span className="text-gray-600 truncate max-w-[120px]">
-                                                    {v.city}, {v.country}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-gray-500 text-xs">
-                                                <span className="truncate max-w-[80px]">{v.path}</span>
-                                                <span>{formatTime(v.timestamp)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                            <div>
+                                <p className="text-2xl font-bold text-gray-900">{visitorStats.today.uniqueVisitors}</p>
+                                <p className="text-xs text-gray-500">Unique Visitors</p>
                             </div>
-                        )}
+                            <div>
+                                <p className="text-2xl font-bold text-gray-900">{visitorStats.allTime.pageViews}</p>
+                                <p className="text-xs text-gray-500">All-Time Views</p>
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-gray-900">{visitorStats.allTime.uniqueVisitors}</p>
+                                <p className="text-xs text-gray-500">Total Visitors</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

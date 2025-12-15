@@ -510,6 +510,7 @@ export const categoryIconMap: Record<string, keyof typeof Icons> = {
   'text': 'CategoryText',
   'archive': 'CategoryArchive',
   'video': 'CategoryVideo',
+  'utility': 'QrCode',
 };
 
 export default Icons;

@@ -6,7 +6,7 @@ export interface Tool {
   description: string;
   icon: keyof typeof Icons;
   href: string;
-  category: 'pdf' | 'image' | 'text' | 'archive' | 'audio' | 'video';
+  category: 'pdf' | 'image' | 'text' | 'archive' | 'video' | 'utility';
   supportedFormats: string[];
   maxFileSize: string;
 }
@@ -210,18 +210,6 @@ export const tools: Tool[] = [
     maxFileSize: '100MB',
   },
 
-  // Utility Tools
-  {
-    id: 'qr-code-generator',
-    title: 'QR Code Generator',
-    description: 'Create beautiful styled QR codes',
-    icon: 'QrCode',
-    href: '/tools/qr-code-generator',
-    category: 'text',
-    supportedFormats: ['PNG', 'SVG'],
-    maxFileSize: 'N/A',
-  },
-
   // Video Tools
   {
     id: 'video-converter',
@@ -243,12 +231,25 @@ export const tools: Tool[] = [
     supportedFormats: ['MP4', 'WEBM'],
     maxFileSize: '100MB',
   },
+
+  // Utility Tools
+  {
+    id: 'qr-code-generator',
+    title: 'QR Code Generator',
+    description: 'Create beautiful styled QR codes',
+    icon: 'QrCode',
+    href: '/tools/qr-code-generator',
+    category: 'utility',
+    supportedFormats: ['PNG', 'SVG'],
+    maxFileSize: 'N/A',
+  },
 ];
 
 export const categories = [
   { id: 'pdf', name: 'PDF Tools', icon: '📄' },
   { id: 'image', name: 'Image Tools', icon: '🖼️' },
-  { id: 'text', name: 'Text & Utility', icon: '📝' },
+  { id: 'text', name: 'Text Tools', icon: '📝' },
   { id: 'archive', name: 'Archive Tools', icon: '📁' },
   { id: 'video', name: 'Video Tools', icon: '🎬' },
+  { id: 'utility', name: 'Utility Tools', icon: '🛠️' },
 ];

@@ -10,12 +10,14 @@ import {
     Menu,
     X,
     LogOut,
-    Home
+    Home,
+    Users
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Visitors', href: '/admin/visitors', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Logs', href: '/admin/logs', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
