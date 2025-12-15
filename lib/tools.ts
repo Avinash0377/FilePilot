@@ -169,8 +169,8 @@ export const tools: Tool[] = [
   // Text/Doc Tools
   {
     id: 'ocr-image',
-    title: 'OCR Image',
-    description: 'Extract text from images using OCR',
+    title: 'Image to Text',
+    description: 'Extract text from images instantly',
     icon: 'OcrText',
     href: '/tools/ocr-image',
     category: 'text',

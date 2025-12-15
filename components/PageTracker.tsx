@@ -7,6 +7,11 @@ export default function PageTracker() {
     const pathname = usePathname();
 
     useEffect(() => {
+        // Don't track admin pages
+        if (pathname?.startsWith('/admin')) {
+            return;
+        }
+
         // Track page view on route change
         const trackView = async () => {
             try {

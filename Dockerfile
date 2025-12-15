@@ -38,6 +38,10 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     ffmpeg \
     poppler-utils \
+    zip \
+    unzip \
+    tesseract-ocr \
+    tesseract-ocr-eng \
     fonts-liberation \
     fonts-dejavu-core \
     fonts-noto-core \

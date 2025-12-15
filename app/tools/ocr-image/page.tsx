@@ -61,9 +61,9 @@ export default function OcrImagePage() {
 
   return (
     <ToolLayout
-      title="OCR Image to Text"
-      description="Extract text from images using OCR"
-      icon="👁️"
+      title="Image to Text"
+      description="Extract text from images instantly"
+      icon="📝"
     >
       <StepIndicator currentStep={currentStep} />
 
