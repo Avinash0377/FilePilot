@@ -268,6 +268,19 @@ export const Icons = {
     </svg>
   ),
 
+  // QR Code Icon
+  QrCode: ({ className = "w-6 h-6" }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="3" height="3" />
+      <rect x="18" y="14" width="3" height="3" />
+      <rect x="14" y="18" width="3" height="3" />
+      <rect x="18" y="18" width="3" height="3" />
+    </svg>
+  ),
+
   // UI Icons
   Upload: ({ className = "w-6 h-6" }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -485,7 +498,7 @@ export const toolIconMap: Record<string, keyof typeof Icons> = {
   'pdf-to-text': 'PdfToText',
   'zip-files': 'ZipFiles',
   'unzip-files': 'UnzipFiles',
-  'audio-converter': 'AudioConvert',
+  'qr-code-generator': 'QrCode',
   'video-converter': 'VideoConvert',
   'video-compressor': 'VideoCompress',
 };
@@ -496,7 +509,6 @@ export const categoryIconMap: Record<string, keyof typeof Icons> = {
   'image': 'CategoryImage',
   'text': 'CategoryText',
   'archive': 'CategoryArchive',
-  'audio': 'CategoryAudio',
   'video': 'CategoryVideo',
 };
 

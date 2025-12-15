@@ -210,16 +210,16 @@ export const tools: Tool[] = [
     maxFileSize: '100MB',
   },
 
-  // Audio Tools
+  // Utility Tools
   {
-    id: 'audio-converter',
-    title: 'Audio Converter',
-    description: 'Convert between MP3 and WAV formats',
-    icon: 'AudioConvert',
-    href: '/tools/audio-converter',
-    category: 'audio',
-    supportedFormats: ['MP3', 'WAV'],
-    maxFileSize: '50MB',
+    id: 'qr-code-generator',
+    title: 'QR Code Generator',
+    description: 'Create beautiful styled QR codes',
+    icon: 'QrCode',
+    href: '/tools/qr-code-generator',
+    category: 'text',
+    supportedFormats: ['PNG', 'SVG'],
+    maxFileSize: 'N/A',
   },
 
   // Video Tools
@@ -248,8 +248,7 @@ export const tools: Tool[] = [
 export const categories = [
   { id: 'pdf', name: 'PDF Tools', icon: '📄' },
   { id: 'image', name: 'Image Tools', icon: '🖼️' },
-  { id: 'text', name: 'Text/Doc Tools', icon: '📝' },
+  { id: 'text', name: 'Text & Utility', icon: '📝' },
   { id: 'archive', name: 'Archive Tools', icon: '📁' },
-  { id: 'audio', name: 'Audio Tools', icon: '🎵' },
   { id: 'video', name: 'Video Tools', icon: '🎬' },
 ];
