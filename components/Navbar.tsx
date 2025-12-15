@@ -2,11 +2,18 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Icons } from './Icons';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quickToolsOpen, setQuickToolsOpen] = useState(false);
+
+  // Don't render Navbar on admin pages - they have their own sidebar
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   // Close mobile menu when clicking outside or on scroll
   useEffect(() => {

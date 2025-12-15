@@ -1,7 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Icons } from './Icons';
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Don't render Footer on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white border-t border-slate-700/50">
       {/* Top Gradient Separator */}
