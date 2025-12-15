@@ -60,11 +60,12 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         with:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GH_TOKEN
+          envs: GH_TOKEN,MONGODB_URI
           script: |
             echo "🚀 Starting deployment..."
             
@@ -81,12 +82,13 @@ jobs:
             docker stop filepilot || true
             docker rm filepilot || true
             
-            # Run new container
+            # Run new container with MONGODB_URI
             docker run -d \
               --name filepilot \
               -p 3000:3000 \
               --restart unless-stopped \
               -v /tmp/filepilot:/tmp/filepilot \
+              -e MONGODB_URI="$MONGODB_URI" \
               $IMAGE
             
             # Cleanup old images
