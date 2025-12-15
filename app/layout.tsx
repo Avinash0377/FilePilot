@@ -100,7 +100,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION || '',
+    google: 'i80InGp4HxQm92MZ9rtlnQGeKww_wZDabcWIVz2Gc-g',
   },
   category: 'utility',
 };
