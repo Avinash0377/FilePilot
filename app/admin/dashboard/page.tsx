@@ -15,7 +15,11 @@ import {
     Cpu,
     HardDrive,
     RefreshCw,
-    Activity
+    Activity,
+    Users,
+    Eye,
+    Globe,
+    MapPin
 } from 'lucide-react';
 
 interface Stats {
@@ -44,8 +48,34 @@ interface Stats {
     }>;
 }
 
+interface VisitorStats {
+    today: { pageViews: number; uniqueVisitors: number };
+    allTime: { pageViews: number; uniqueVisitors: number };
+    last7Days: Array<{ date: string; pageViews: number; uniqueVisitors: number }>;
+    topPages: Array<{ path: string; views: number }>;
+    topCountries: Array<{ country: string; countryCode: string; views: number }>;
+    recentVisitors: Array<{
+        path: string;
+        timestamp: number;
+        country: string;
+        countryCode: string;
+        city: string;
+    }>;
+}
+
+// Country flag emoji from country code
+function getFlag(countryCode: string): string {
+    if (!countryCode || countryCode === 'XX' || countryCode === 'LO') return '🌍';
+    const codePoints = countryCode
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+}
+
 export default function DashboardPage() {
     const [stats, setStats] = useState<Stats | null>(null);
+    const [visitorStats, setVisitorStats] = useState<VisitorStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [refreshing, setRefreshing] = useState(false);
@@ -55,17 +85,23 @@ export default function DashboardPage() {
         if (showRefresh) setRefreshing(true);
 
         try {
-            const res = await fetch('/api/admin/stats');
+            const [statsRes, visitorsRes] = await Promise.all([
+                fetch('/api/admin/stats'),
+                fetch('/api/admin/visitors')
+            ]);
 
-            if (res.status === 401) {
+            if (statsRes.status === 401) {
                 router.push('/admin/login');
                 return;
             }
 
-            if (!res.ok) throw new Error('Failed to fetch stats');
+            if (!statsRes.ok) throw new Error('Failed to fetch stats');
 
-            const data = await res.json();
-            setStats(data);
+            const statsData = await statsRes.json();
+            const visitorsData = visitorsRes.ok ? await visitorsRes.json() : null;
+
+            setStats(statsData);
+            setVisitorStats(visitorsData);
             setError('');
         } catch (err) {
             setError('Failed to load stats');
@@ -92,6 +128,11 @@ export default function DashboardPage() {
         if (days > 0) return `${days}d ${hours}h`;
         if (hours > 0) return `${hours}h ${mins}m`;
         return `${mins}m`;
+    };
+
+    const formatTime = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
     };
 
     // Transform data for charts
@@ -187,7 +228,93 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Metrics Grid - Mobile: 2 cols, Tablet: 3 cols */}
+            {/* Visitor Stats Row */}
+            {visitorStats && (
+                <div className="mb-6 sm:mb-8">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Users className="w-5 h-5 text-purple-600" />
+                        Visitor Analytics
+                    </h2>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                        <MetricCard
+                            title="Today's Views"
+                            value={visitorStats.today.pageViews.toLocaleString()}
+                            icon={Eye}
+                        />
+                        <MetricCard
+                            title="Today's Visitors"
+                            value={visitorStats.today.uniqueVisitors.toLocaleString()}
+                            icon={Users}
+                        />
+                        <MetricCard
+                            title="All-Time Views"
+                            value={visitorStats.allTime.pageViews.toLocaleString()}
+                            icon={TrendingUp}
+                        />
+                        <MetricCard
+                            title="Total Visitors"
+                            value={visitorStats.allTime.uniqueVisitors.toLocaleString()}
+                            icon={Globe}
+                        />
+                    </div>
+
+                    {/* Top Countries & Recent Visitors */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Top Countries */}
+                        {visitorStats.topCountries.length > 0 && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-4">
+                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <Globe className="w-4 h-4 text-blue-600" />
+                                    Top Countries
+                                </h3>
+                                <div className="space-y-2">
+                                    {visitorStats.topCountries.slice(0, 5).map((c, i) => (
+                                        <div key={i} className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-lg">{getFlag(c.countryCode)}</span>
+                                                <span className="text-gray-700">{c.country}</span>
+                                            </div>
+                                            <span className="font-medium text-gray-900">{c.views}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Recent Visitors */}
+                        {visitorStats.recentVisitors.length > 0 && (
+                            <div className="bg-white rounded-xl border border-gray-200 p-4">
+                                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-green-600" />
+                                    Recent Visitors
+                                </h3>
+                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                    {visitorStats.recentVisitors.slice(0, 10).map((v, i) => (
+                                        <div key={i} className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2 overflow-hidden">
+                                                <span>{getFlag(v.countryCode)}</span>
+                                                <span className="text-gray-600 truncate max-w-[120px]">
+                                                    {v.city}, {v.country}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-gray-500 text-xs">
+                                                <span className="truncate max-w-[80px]">{v.path}</span>
+                                                <span>{formatTime(v.timestamp)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Conversion Metrics Grid */}
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <FileCheck className="w-5 h-5 text-blue-600" />
+                Conversion Stats
+            </h2>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
                 <MetricCard
                     title="Total Conversions"
