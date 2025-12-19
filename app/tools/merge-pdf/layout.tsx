@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Combine multiple PDF files into a single document. Fast, secure, and free.",
     keywords: ["merge pdf", "combine pdf", "join pdf files"],
   alternates: {
-    canonical: "https://filepilot.com/tools/merge-pdf",
+    canonical: "https://filepilot.online/tools/merge-pdf",
   },
 };
 

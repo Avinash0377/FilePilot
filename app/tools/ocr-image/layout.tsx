@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Extract text from images using OCR. Fast and highly accurate.",
     keywords: ["ocr", "image to text", "extract text from image"],
   alternates: {
-    canonical: "https://filepilot.com/tools/ocr-image",
+    canonical: "https://filepilot.online/tools/ocr-image",
   },
 };
 

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Add custom backgrounds to transparent PNG images instantly. Fast, easy, and free.",
     keywords: ["add background", "image background", "png background", "add bg to image"],
   alternates: {
-    canonical: "https://filepilot.com/tools/add-background",
+    canonical: "https://filepilot.online/tools/add-background",
   },
 };
 

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert PDF pages into high-quality PNG images instantly.",
     keywords: ["pdf to png", "convert pdf to image"],
   alternates: {
-    canonical: "https://filepilot.com/tools/pdf-to-png",
+    canonical: "https://filepilot.online/tools/pdf-to-png",
   },
 };
 

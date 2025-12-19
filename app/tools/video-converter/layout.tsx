@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "Convert MP4 to WebM or WebM to MP4 instantly. Fast and free.",
   keywords: ["video converter", "mp4 to webm", "webm to mp4"],
   alternates: {
-    canonical: "https://filepilot.com/tools/video-converter",
+    canonical: "https://filepilot.online/tools/video-converter",
   },
 };
 

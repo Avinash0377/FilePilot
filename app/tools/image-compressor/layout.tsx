@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Compress JPG, PNG, and WebP images without losing quality.",
     keywords: ["image compressor", "reduce image size", "compress jpg"],
   alternates: {
-    canonical: "https://filepilot.com/tools/image-compressor",
+    canonical: "https://filepilot.online/tools/image-compressor",
   },
 };
 

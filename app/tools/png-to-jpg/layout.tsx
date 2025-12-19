@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert PNG images to JPG format instantly with compression support.",
     keywords: ["png to jpg", "convert png", "image converter"],
   alternates: {
-    canonical: "https://filepilot.com/tools/png-to-jpg",
+    canonical: "https://filepilot.online/tools/png-to-jpg",
   },
 };
 

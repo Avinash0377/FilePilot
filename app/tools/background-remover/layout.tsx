@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Remove image backgrounds automatically with AI-powered processing.",
     keywords: ["background remover", "remove bg", "image background remove"],
   alternates: {
-    canonical: "https://filepilot.com/tools/background-remover",
+    canonical: "https://filepilot.online/tools/background-remover",
   },
 };
 

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert PDF documents into plain text instantly.",
     keywords: ["pdf to text", "extract text pdf"],
   alternates: {
-    canonical: "https://filepilot.com/tools/pdf-to-text",
+    canonical: "https://filepilot.online/tools/pdf-to-text",
   },
 };
 

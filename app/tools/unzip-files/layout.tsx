@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Extract ZIP archives instantly. Fast, secure, free.",
     keywords: ["unzip files", "extract zip", "decompress files"],
   alternates: {
-    canonical: "https://filepilot.com/tools/unzip-files",
+    canonical: "https://filepilot.online/tools/unzip-files",
   },
 };
 

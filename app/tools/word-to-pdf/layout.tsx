@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert Word documents (.docx) to PDF format instantly. Fast, secure, and accurate.",
     keywords: ["word to pdf", "docx to pdf", "convert word to pdf"],
   alternates: {
-    canonical: "https://filepilot.com/tools/word-to-pdf",
+    canonical: "https://filepilot.online/tools/word-to-pdf",
   },
 };
 

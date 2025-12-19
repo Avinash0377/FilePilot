@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert JPG or PNG images into WebP format instantly.",
     keywords: ["image to webp", "webp converter"],
   alternates: {
-    canonical: "https://filepilot.com/tools/image-to-webp",
+    canonical: "https://filepilot.online/tools/image-to-webp",
   },
 };
 

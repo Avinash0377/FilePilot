@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert PowerPoint files to PDF quickly and securely.",
     keywords: ["ppt to pdf", "powerpoint to pdf"],
   alternates: {
-    canonical: "https://filepilot.com/tools/ppt-to-pdf",
+    canonical: "https://filepilot.online/tools/ppt-to-pdf",
   },
 };
 

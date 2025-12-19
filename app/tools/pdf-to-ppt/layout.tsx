@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Convert PDF files into editable PowerPoint presentations (.pptx).",
     keywords: ["pdf to ppt", "convert pdf to powerpoint"],
   alternates: {
-    canonical: "https://filepilot.com/tools/pdf-to-ppt",
+    canonical: "https://filepilot.online/tools/pdf-to-ppt",
   },
 };
 

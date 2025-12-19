@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Reduce PDF file size without losing quality. Instant and secure PDF compression.",
     keywords: ["compress pdf", "pdf compressor", "reduce pdf size"],
   alternates: {
-    canonical: "https://filepilot.com/tools/compress-pdf",
+    canonical: "https://filepilot.online/tools/compress-pdf",
   },
 };
 

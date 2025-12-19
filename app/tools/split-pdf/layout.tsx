@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Extract specific pages from a PDF instantly. Private, fast, and free.",
     keywords: ["split pdf", "extract pdf pages", "separate pdf"],
   alternates: {
-    canonical: "https://filepilot.com/tools/split-pdf",
+    canonical: "https://filepilot.online/tools/split-pdf",
   },
 };
 

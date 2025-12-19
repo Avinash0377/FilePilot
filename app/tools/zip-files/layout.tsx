@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Compress files into a ZIP archive instantly.",
     keywords: ["zip files", "create zip", "file compression"],
   alternates: {
-    canonical: "https://filepilot.com/tools/zip-files",
+    canonical: "https://filepilot.online/tools/zip-files",
   },
 };
 

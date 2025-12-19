@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     description: "Compress videos while maintaining quality. Fast and secure.",
     keywords: ["video compressor", "reduce video size", "compress mp4"],
   alternates: {
-    canonical: "https://filepilot.com/tools/video-compressor",
+    canonical: "https://filepilot.online/tools/video-compressor",
   },
 };
 
