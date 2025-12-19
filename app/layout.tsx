@@ -49,9 +49,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicon.png', sizes: '96x96', type: 'image/png' },
       { url: '/favicon.png', sizes: '192x192', type: 'image/png' },
     ],
+    shortcut: '/favicon.ico',
     apple: [
       { url: '/favicon.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -133,6 +137,21 @@ export default function RootLayout({
               "@type": "ContactPoint",
               "email": "sudhimallaavinash07@gmail.com",
               "contactType": "customer support"
+            }
+          })
+        }} />
+        {/* WebSite Schema - Controls site name in Google Search */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "FilePilot",
+            "alternateName": ["File Pilot", "FilePilot Online"],
+            "url": "https://filepilot.online",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://filepilot.online/?q={search_term_string}",
+              "query-input": "required name=search_term_string"
             }
           })
         }} />
