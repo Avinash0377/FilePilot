@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Icons, toolIconMap } from './Icons';
 import SimilarTools from './SimilarTools';
+import ToolContent from './ToolContent';
 import { tools } from '@/lib/tools';
 
 interface ToolLayoutProps {
@@ -83,6 +84,11 @@ export default function ToolLayout({ title, description, children, toolId }: Too
               <span className="text-xs sm:text-sm text-slate-600 whitespace-nowrap">{badge.text}</span>
             </div>
           ))}
+        </div>
+
+        {/* Rich SEO Content for AdSense */}
+        <div className="mb-16">
+          <ToolContent toolId={derivedToolId} />
         </div>
 
         {/* Similar Tools - Mobile Optimized */}

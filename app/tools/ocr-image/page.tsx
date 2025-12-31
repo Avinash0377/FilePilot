@@ -64,6 +64,7 @@ export default function OcrImagePage() {
       title="Image to Text"
       description="Extract text from images instantly"
       icon="📝"
+      toolId="ocr-image"
     >
       <StepIndicator currentStep={currentStep} />
 
